@@ -6,8 +6,8 @@ app.get("/", (req, res) => {
   res.send("hello world");
 });
 
-app.get("/add", (req, res) => {
-  res.send(String(add(5, 3)));
+app.get("/add/:x/:y", (req, res) => {
+  res.send(String(add(+req.params.x, +req.params.y)));
 });
 
 function add(x: number, y: number): number {
