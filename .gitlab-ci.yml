@@ -1,4 +1,4 @@
-image line5/drp-backend:latest
+image: line5/drp-backend:latest
 
 stages:
   - build
