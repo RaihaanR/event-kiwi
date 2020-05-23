@@ -6,8 +6,11 @@ stages:
 
 build:
   stage: build
-  script: npm run build
-  
+  script:
+    - npm install
+    - npm run build
 test:
   stage: test
-  script: npm run test
+  script:
+    - npm install
+    - npm run test
