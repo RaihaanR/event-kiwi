@@ -1,0 +1,13 @@
+image line5/drp-backend:latest
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script: npm run build
+  
+test:
+  stage: test
+  script npm run test
