@@ -1,4 +1,7 @@
 import express from "express";
+
+import Sequences from './Sequences';
+
 const app = express();
 const port = 8080;
 
@@ -7,12 +10,16 @@ app.get("/", (req, res) => {
 });
 
 app.get("/add/:x/:y", (req, res) => {
-  res.send(String(add(+req.params.x, +req.params.y)));
+  res.send(String(Sequences.add(+req.params.x, +req.params.y)));
 });
 
-function add(x: number, y: number): number {
-  return x + y;
-}
+app.get("/factorial/:x", (req, res) => {
+  res.send(String(Sequences.factorial(+req.params.x)));
+});
+
+app.get("/fibonacci/:x", (req, res) => {
+  res.send(String(Sequences.fibonacci(+req.params.x)));
+});
 
 app.listen(port, () => {
   // tslint:disable-next-line:no-console
