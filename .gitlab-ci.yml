@@ -19,10 +19,8 @@ test:
 production:
   type: deploy
   stage: production
-  image: ruby:latest
+  image: line5/drp-backend:latest
   script:
-    - apt-get install -y ruby-dev
-    - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
   only:
     - master
