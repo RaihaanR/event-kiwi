@@ -31,6 +31,7 @@ app.get("/select1/:col", (req, res) => {
       res.send(data);
     })
     .catch((error: any) => {
+      // tslint:disable-next-line:no-console
       console.log("Error: " + error);
     });
 });
@@ -41,6 +42,7 @@ app.get("/select2/:col", (req, res) => {
       res.send(data);
     })
     .catch((error: any) => {
+      // tslint:disable-next-line:no-console
       console.log("Error: " + error);
     });
 });
@@ -51,6 +53,7 @@ app.get("/join", (req, res) => {
       res.send(data);
     })
     .catch((error: any) => {
+      // tslint:disable-next-line:no-console
       console.log("Error: " + error);
     });
 });
