@@ -68,7 +68,6 @@ app.get("/fibonacci/:x", (req, res) => {
   res.send(String(Sequences.fibonacci(+req.params.x)));
 });
 
-
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
 });
