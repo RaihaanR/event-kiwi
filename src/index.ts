@@ -1,6 +1,7 @@
 import express from 'express';
 
 import Database from './Database';
+import Sequences from './Sequences';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -58,6 +59,15 @@ app.get('/join', (req, res) => {
       console.log('Error: ' + error);
     });
 });
+
+app.get("/factorial/:x", (req, res) => {
+  res.send(String(Sequences.factorial(+req.params.x)));
+});
+
+app.get("/fibonacci/:x", (req, res) => {
+  res.send(String(Sequences.fibonacci(+req.params.x)));
+});
+
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
