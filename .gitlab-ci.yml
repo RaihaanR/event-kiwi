@@ -8,13 +8,20 @@ stages:
 build:
   stage: build
   script:
-    - npm install
+    - npm install --dev
     - npm run build
-test:
+
+test basic:
   stage: test
   script:
-    - npm install
-    - npm run test
+    - npm install --dev
+    - npm run test-basic
+
+test database:
+  stage: test
+  script:
+    - npm install --dev
+    - npm run test-db
 
 production:
   type: deploy
