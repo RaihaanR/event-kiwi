@@ -21,7 +21,7 @@ app.get('/select1', (req, res) => {
 });
 
 app.get('/select1/:col', (req, res) => {
-  Database.db().any('SELECT $1:name FROM test.table1', [req.params['col']])
+  Database.db().any('SELECT $1:name FROM test.table1', [req.params.col])
     .then((data: any) => {
       res.send(data);
     })
@@ -41,7 +41,7 @@ app.get('/select2', (req, res) => {
 });
 
 app.get('/select2/:col', (req, res) => {
-  Database.db().any('SELECT $1:name FROM test.table2', [req.params['col']])
+  Database.db().any('SELECT $1:name FROM test.table2', [req.params.col])
     .then((data: any) => {
       res.send(data);
     })
