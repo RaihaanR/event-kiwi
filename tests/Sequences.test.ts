@@ -24,3 +24,4 @@ describe('factorial', function() {
     expect(result).equal(24);
   });
 });
+
