@@ -1,21 +1,22 @@
-import express from 'express';
-const app = express();
-const port = 8080;
-
+import express from "express";
 import pgPromise from 'pg-promise';
+
+const app = express();
+const port = process.env.PORT || 8080;
+
 const pgp = pgPromise();
 const dbOptions = {
-  user: process.env.DBUSER,
-  password: process.env.DBPASS,
-  host: process.env.DBHOST,
-  port: parseInt(process.env.DBPORT, 10),
-  database: process.env.DBNAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10),
+  database: process.env.DB_NAME,
   ssl: true
 };
 const db = pgp(dbOptions);
 
 app.get("/", (req, res) => {
-  res.send("hello world");
+  res.send("Hello World!");
 });
 
 app.get("/select1", (req, res) => {
