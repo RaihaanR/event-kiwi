@@ -7,9 +7,9 @@
     "build": "tsc",
     "prestart": "npm run build",
     "start": "node .",
-    "test-basic": "mocha -r ts-node/register tests/Sequences.test.ts",
-    "test-postgres": "mocha -r ts-node/register tests/Database.test.ts",
-    "test-aws": "mocha -r ts-node/register tests/Bucket.test.ts"
+    "test-basic": "mocha -r ts-node/register tests/sequences.test.ts",
+    "test-postgres": "mocha -r ts-node/register tests/database.test.ts",
+    "test-aws": "mocha -r ts-node/register tests/bucket.test.ts"
   },
   "repository": {
     "type": "git",
