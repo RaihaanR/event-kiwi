@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Sequences from '../src/Sequences';
+import Sequences from '../src/sequences';
 
 describe('fibonacci', function() {
   it('fib(0) should be 0', function() {

@@ -7,8 +7,8 @@
     "build": "tsc",
     "prestart": "npm run build",
     "start": "node .",
-    "test-basic": "mocha -r ts-node/register tests/Sequences.test.ts",
-    "test-db": "mocha -r ts-node/register tests/Database.test.ts"
+    "test-basic": "mocha -r ts-node/register tests/sequences.test.ts",
+    "test-db": "mocha -r ts-node/register tests/database.test.ts"
   },
   "repository": {
     "type": "git",
