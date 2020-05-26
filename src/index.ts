@@ -1,6 +1,7 @@
 import express from 'express';
 
 import Database from './Database';
+import Sequences from './Sequences';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -20,7 +21,7 @@ app.get('/select1', (req, res) => {
 });
 
 app.get('/select1/:col', (req, res) => {
-  Database.db().any('SELECT $1:name FROM test.table1', [req.params['col']])
+  Database.db().any('SELECT $1:name FROM test.table1', [req.params.col])
     .then((data: any) => {
       res.send(data);
     })
@@ -40,7 +41,7 @@ app.get('/select2', (req, res) => {
 });
 
 app.get('/select2/:col', (req, res) => {
-  Database.db().any('SELECT $1:name FROM test.table2', [req.params['col']])
+  Database.db().any('SELECT $1:name FROM test.table2', [req.params.col])
     .then((data: any) => {
       res.send(data);
     })
@@ -57,6 +58,14 @@ app.get('/join', (req, res) => {
     .catch((error: any) => {
       console.log('Error: ' + error);
     });
+});
+
+app.get("/factorial/:x", (req, res) => {
+  res.send(String(Sequences.factorial(+req.params.x)));
+});
+
+app.get("/fibonacci/:x", (req, res) => {
+  res.send(String(Sequences.fibonacci(+req.params.x)));
 });
 
 app.listen(port, () => {
