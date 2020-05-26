@@ -1,7 +1,10 @@
 import express from 'express';
 
+import request from 'request-promise';
+
 import Database from './Database';
 import Sequences from './Sequences';
+import Bucket from './Bucket';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -66,6 +69,31 @@ app.get("/factorial/:x", (req, res) => {
 
 app.get("/fibonacci/:x", (req, res) => {
   res.send(String(Sequences.fibonacci(+req.params.x)));
+});
+
+app.get("/mirror/:url", (req, res) => {
+  const options = {
+    uri: req.params.url,
+    encoding: null
+  };
+  request(options, (error, response, body) => {
+    if (error || response.statusCode !== 200) {
+      res.send("Error (" + error + ") [" + response.statusCode + "]");
+    } else {
+      let params = {
+        Bucket: process.env.AWS_S3_NAME,
+        Key: 'exampleFile',
+        Body: body
+      };
+      Bucket.s3().putObject(params, (perr, pres) => {
+        if (perr) {
+          res.send("Error! " + "--" + body + "--" + perr);
+        } else {
+          res.send("Success!" + req.params.url);
+        }
+      });
+    }
+  });
 });
 
 app.listen(port, () => {
