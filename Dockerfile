@@ -1,4 +1,5 @@
-FROM node:12.16.3
+FROM node:latest
 COPY package.json package.json
-RUN npm install
-CMD npm run start
+COPY dist/ dist/
+RUN npm install --only=prod
+CMD node .
