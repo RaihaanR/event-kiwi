@@ -1,5 +1,5 @@
 FROM node:latest
-COPY package.json package.json
+COPY package-lock.json package-lock.json
 COPY dist/ dist/
-RUN npm install --only=prod
+RUN npm ci --production
 CMD node .
