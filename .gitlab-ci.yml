@@ -22,7 +22,7 @@ build:
     - npm run build
   artifacts:
     paths:
-      - .dist/
+      - dist/
 
 test basic:
   stage: test
@@ -56,11 +56,10 @@ test aws:
 
 staging:
   stage: deploy
+  image: line5/drp-backend:latest
+  before_script: []
   cache: {}
   script:
-    - apt-get update -qy
-    - apt-get install -y ruby-dev
-    - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
@@ -68,11 +67,10 @@ staging:
 
 production:
   stage: deploy
+  image: line5/drp-backend:latest
+  before_script: []
   cache: {}
   script:
-    - apt-get update -yq
-    - apt-get install -y ruby-dev
-    - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
