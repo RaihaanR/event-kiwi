@@ -81,7 +81,7 @@ app.get("/mirror/:url", (req, res) => {
       res.send("Error (" + error + ") [" + response.statusCode + "]");
     } else {
       let params = {
-        Bucket: process.env.AWS_S3_NAME,
+        Bucket: Bucket.bucketName(),
         Key: 'exampleFile',
         Body: body
       };
@@ -93,6 +93,16 @@ app.get("/mirror/:url", (req, res) => {
         }
       });
     }
+  });
+});
+
+app.get("/btest", (req, res) => {
+  let params = {
+    Bucket: Bucket.bucketName(),
+    Key: '_test'
+  };
+  Bucket.s3().getObject(params, (err, data) => {
+    res.send(data.Body.toString('utf-8').trim() === "accessed!");
   });
 });
 
