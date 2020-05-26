@@ -1,4 +1,5 @@
-FROM node:12.16.3
-COPY package.json package.json
-RUN npm install
-CMD npm run start
+FROM node:latest
+COPY package-lock.json package-lock.json
+COPY dist/ dist/
+RUN npm ci --production
+CMD node .
