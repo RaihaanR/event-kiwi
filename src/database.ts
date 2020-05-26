@@ -24,11 +24,11 @@ export default class Database {
     return db.any('SELECT * FROM $1:name NATURAL JOIN $2:name', [t1, t2]);
   }
   
-  static async allTable1(): Promise<any> {
+  static async allTable1(): Promise<any[]> {
     return this.select('*', this.table1);
   }
 
-  static async allTable2(): Promise<any> {
+  static async allTable2(): Promise<any[]> {
     return this.select('*', this.table2);
   }
 
