@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Bucket from '../src/Bucket';
+import Bucket from '../src/bucket';
 
 describe('AWS', async () => {
   it('accessing _test gives correct response', async () => {
