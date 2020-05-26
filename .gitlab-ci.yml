@@ -3,7 +3,7 @@ image: node:12.16.3
 stages:
   - build
   - test
-  - production
+  - deploy
 
 build:
   stage: build
@@ -16,19 +16,40 @@ test basic:
   script:
     - npm install --dev
     - npm run test-basic
+  except:
+    - staging
 
 test database:
   stage: test
   script:
     - npm install --dev
-    - npm run test-db
+    - npm run test-postgres
+  except:
+    - staging
+
+test aws:
+  stage: test
+  script:
+    - npm install --dev
+    - npm run test-aws
+  except:
+    - staging
 
 production:
   type: deploy
-  stage: production
+  stage: deploy
   image: line5/drp-backend:latest
   script:
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
   only:
     - master
-    - pipeline
+
+staging:
+  type: deploy
+  stage: deploy
+  image: line5/drp-backend:latest
+  script:
+    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+  only:
+    - master
+    - staging
