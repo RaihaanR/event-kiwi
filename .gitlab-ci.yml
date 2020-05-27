@@ -57,8 +57,11 @@ test aws:
 staging:
   stage: deploy
   image: line5/drp-backend:latest
+  cache:
+    policy: pull
   before_script: []
   script:
+    - ls -al
     - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
@@ -67,6 +70,8 @@ staging:
 production:
   stage: deploy
   image: line5/drp-backend:latest
+  cache:
+    policy: pull
   before_script: []
   script:
     - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY --skip_cleanup=true
