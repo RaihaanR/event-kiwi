@@ -26,7 +26,7 @@ export default class Database {
   }
 
   static async getAllEventCardDetails(): Promise<any> {
-    return this.select(['id', 'name', 'start_datetime', 'end_datetime',
+    return this.select(['event_id', 'name', 'start_datetime', 'end_datetime',
                         'location', 'society_id', 'image_src', 'tags'], this.event);
   }
 
