@@ -21,7 +21,7 @@ export default class Database {
   }
 
   private static async join(t1: string, t2: string): Promise<any> {
-    return db.any('SELECT * FROM $1:name NATURAL JOIN test.$2:name', [t1, t2]);
+    return db.any('SELECT * FROM test.$1:name NATURAL JOIN test.$2:name', [t1, t2]);
   }
 
   static async allTable1(): Promise<any[]> {
