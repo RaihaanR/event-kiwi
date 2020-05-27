@@ -81,3 +81,5 @@ temp/
 [._]sw[a-p]
 
 env.sh
+
+.env_var
