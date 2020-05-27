@@ -64,7 +64,7 @@ staging:
     - apt-get update -yq
     - apt-get install -y ruby-dev
     - gem install dpl
-    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
     - staging
@@ -79,6 +79,6 @@ production:
     - gem install dpl
     - npm ci --cache .npm --production
   script:
-    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
+    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
