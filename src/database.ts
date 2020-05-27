@@ -16,12 +16,22 @@ export default class Database {
   private static event: string = 'event';
   private static society: string = 'society';
 
-  private static async select(column: string, table: string): Promise<any> {
-    return db.any('SELECT $1:name FROM $2:name', [column, table]);
+  private static async select(columns: string[], table: string): Promise<any> {
+    const values = {
+      columns: columns,
+      table: table
+    };
+
+    return db.any('SELECT ${columns:name} FROM ${table:name}', values);
   }
 
-  static async getAllEvents(): Promise<any> {
-    return this.select('*', this.event);
+  static async getAllEventCardDetails(): Promise<any> {
+    return this.select(['event_id', 'name', 'start_datetime', 'end_datetime',
+                        'location', 'society_id', 'image_src', 'tags'], this.event);
+  }
+
+  static async getEventDetails(id: number): Promise<any> {
+    return db.any('SELECT * FROM event INNER JOIN society on (event.society_id = society.society_id) WHERE event.event_id = $1', [id]);
   }
 }
 
