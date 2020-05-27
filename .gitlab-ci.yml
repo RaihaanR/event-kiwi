@@ -59,10 +59,10 @@ staging:
   image: line5/drp-backend:latest
   cache:
     policy: pull
-  before_script: []
+  before_script:
+    - npm ci --cache .npm --production
   script:
-    - ls -al
-    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY --skip_cleanup=true
+    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
   only:
     - master
     - staging
@@ -72,8 +72,9 @@ production:
   image: line5/drp-backend:latest
   cache:
     policy: pull
-  before_script: []
+  before_script:
+    - npm ci --cache .npm --production
   script:
-    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY --skip_cleanup=true
+    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
   only:
     - master
