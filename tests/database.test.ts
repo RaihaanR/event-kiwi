@@ -4,7 +4,7 @@ import Database from '../src/database';
 describe('event', async function() {
   it('event name should be \'DoCSoc - Introduction to Vim\'', async function() {
     const data = await Database.getAllEventCardDetails();
-    expect(data[0].name).equal('DoCSoc - Introduction to Vim');
+    expect(data[0].event_name).equal('DoCSoc - Introduction to Vim');
   });
 });
 

@@ -26,12 +26,26 @@ export default class Database {
   }
 
   static async getAllEventCardDetails(): Promise<any> {
-    return this.select(['event_id', 'name', 'start_datetime', 'end_datetime',
-                        'location', 'society_id', 'image_src', 'tags'], this.event);
+    return this.select(['id', 'event_name', 'start_datetime', 'end_datetime',
+                        'location', 'society_id', 'event_image_src', 'tags'], this.event);
   }
 
-  static async getEventDetails(id: number): Promise<any> {
-    return db.any('SELECT * FROM event INNER JOIN society on (event.society_id = society.society_id) WHERE event.event_id = $1', [id]);
+  static async getEventCardDetailsBySocietyId(society_id: number): Promise<any> {
+    const values = {
+      columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
+                'location', 'society_id', 'event_image_src', 'tags'],
+      society_id: society_id
+    };
+
+    return db.any('SELECT ${columns:name} FROM event WHERE society_id = ${society_id}', values);
+  }
+
+  static async getSocietyDetails(society_id: number): Promise<any> {
+    return db.oneOrNone('SELECT * FROM society WHERE id = $1', society_id);
+  }
+
+  static async getEventDetails(event_id: number): Promise<any> {
+    return db.oneOrNone('SELECT * FROM event INNER JOIN society on (event.society_id = society.id) WHERE event.id = $1', [event_id]);
   }
 }
 
