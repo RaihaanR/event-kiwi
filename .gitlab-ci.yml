@@ -1,55 +1,78 @@
-image: node:12.16.3
+image: line5/drp-backend:latest
+
+cache:
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+  paths:
+    - .npm/
+  policy: pull-push
 
 stages:
   - build
   - test
   - deploy
 
+before_script:
+  - npm ci --cache .npm
+
 build:
   stage: build
+  cache:
+    policy: pull
   script:
-    - npm install --dev
     - npm run build
+  artifacts:
+    paths:
+      - dist/
 
 test basic:
   stage: test
+  cache:
+    policy: pull
   script:
-    - npm install --dev
     - npm run test-basic
+  dependencies: []
   except:
     - staging
 
 test database:
   stage: test
+  cache:
+    policy: pull
   script:
-    - npm install --dev
     - npm run test-postgres
+  dependencies: []
   except:
     - staging
 
 test aws:
   stage: test
+  cache:
+    policy: pull
   script:
-    - npm install --dev
     - npm run test-aws
+  dependencies: []
   except:
     - staging
 
-production:
-  type: deploy
-  stage: deploy
-  image: line5/drp-backend:latest
-  script:
-    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
-  only:
-    - master
-
 staging:
-  type: deploy
   stage: deploy
-  image: line5/drp-backend:latest
+  cache:
+    policy: pull
+  before_script:
+    - npm ci --cache .npm --production
   script:
-    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY
+    - dpl --provider=heroku --app=$HEROKU_APP_STAGING --api-key=$HEROKU_API_KEY --skip_cleanup=true
   only:
     - master
     - staging
+
+production:
+  stage: deploy
+  cache:
+    policy: pull
+  before_script:
+    - npm ci --cache .npm --production
+  script:
+    - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY --skip_cleanup=true
+  only:
+    - master
