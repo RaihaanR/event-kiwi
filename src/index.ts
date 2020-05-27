@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors'
 import request from 'request-promise';
 
 import Bucket from './bucket';
@@ -7,15 +8,27 @@ import Database from './database';
 const app = express();
 const port = process.env.PORT || 8080;
 
+app.use(cors());
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.get('/eventCardDetails', async (req, res) => {
+app.get('/event-card-details', async (req, res) => {
   try {
-    res.send(await Database.getAllEvents());
+    res.send(await Database.getAllEventCardDetails());
   } catch (err) {
     res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.get('/event-details/:id', async (req, res) => {
+  try {
+    res.send(await Database.getEventDetails(+req.params.id));
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
   }
 });
 
