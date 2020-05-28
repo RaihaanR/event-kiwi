@@ -112,5 +112,14 @@ export default class Database {
 
     return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
   }
+
+  static async putFile(file_name: string, bucket_key: string, society_id: number) {
+    const values = {
+      file_name: file_name,
+      bucket_key: bucket_key,
+      society_id: society_id
+    }
+    await db.none('INSERT INTO file (id, display_name, bucket_key, society_id) VALUES (DEFAULT, ${file_name}, ${bucket_key}, ${society_id})', values);
+  }
 }
 
