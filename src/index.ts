@@ -55,6 +55,22 @@ app.get('/file/list/:society', (req, res) => {
   Bucket.listBySociety(req, res);
 })
 
+app.get('/events/suggested/:id', async (req, res) => {
+  try {
+    let event = await Database.getEventDetails(+req.params.id);
+    let tags = event.tags;
+    let all = await Database.getAllEventCardDetails();
+
+    let filtered = all.filter(e =>
+      e.id !== event.id && e.tags.some(t => tags.includes(t))
+    );
+    res.send(filtered);
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+})
+
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
 });
