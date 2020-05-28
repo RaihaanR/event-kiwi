@@ -62,7 +62,7 @@ export default class Bucket {
         result['status'] = 0;
         result['body'] = "error: " + perr;
       } else {
-        Database.putFile(name, hash, society);
+        await Database.putFile(name, hash, society);
         result['status'] = 1;
         result['body'] = hash;
       }
