@@ -25,19 +25,7 @@ app.get('/event-card-details', async (req, res) => {
 
 app.get('/event-details/:id', async (req, res) => {
   try {
-    const details = await Database.getEventDetails(+req.params.id);
-    details['same_society_events'] = await Database.getEventCardDetailsBySocietyId(+details['society_id']);
-    details['society'] = {'id': details['society_id'],
-                          'society_name': details['society_name'],
-                          'society_image_src': details['society_image_src'],
-                          'colour': details['colour']};
-
-    delete details['society_id'];
-    delete details['society_name'];
-    delete details['society_image_src'];
-    delete details['colour'];
-
-    res.send(details);
+    res.send(await Database.getEventDetails(+req.params.id));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
