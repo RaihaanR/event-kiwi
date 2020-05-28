@@ -47,5 +47,9 @@ export default class Database {
   static async getEventDetails(event_id: number): Promise<any> {
     return db.oneOrNone('SELECT * FROM event INNER JOIN society on (event.society_id = society.id) WHERE event.id = $1', [event_id]);
   }
+
+  static async getFileName(file_key: string): Promise<any> {
+    return db.oneOrNone('SELECT * FROM file WHERE bucket_key = $1', file_key);
+  }
 }
 

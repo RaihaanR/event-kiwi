@@ -71,6 +71,14 @@ app.get('/mirror/:url', (req, res) => {
   });
 });
 
+app.get('/file/get/:key', (req, res) => {
+  Bucket.downloadByKey(req, res);
+});
+
+app.get('/file/list/:society', (req, res) => {
+  Bucket.listBySociety(req, res);
+})
+
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
 });
