@@ -27,11 +27,12 @@ export default class Database {
 
   static async getAllEventCardDetails(): Promise<any[]> {
     const values = {
-      columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
-                'location', 'society_id', 'event_image_src', 'tags']
+      e_columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
+                'location', 'society_id', 'event_image_src', 'tags'],
+      s_columns: ['society_name', 'society_image_src', 'colour']
     };
 
-    const cards = await db.any('SELECT event.${columns:name}, society.* FROM event INNER JOIN society on (event.society_id = society.id)', values);
+    const cards = await db.any('SELECT event.${e_columns:name}, society.${s_columns:name} FROM event INNER JOIN society ON (event.society_id = society.id)', values);
 
     for (let i = 0; i < cards.length; i++) {
       cards[i]['society'] = {'id': cards[i]['society_id'],
@@ -97,6 +98,19 @@ export default class Database {
 
     delete details['society_id'];
     return details;
+  }
+
+  static async getFileName(file_key: string): Promise<any> {
+    return db.oneOrNone('SELECT * FROM file WHERE bucket_key = $1', file_key);
+  }
+
+  static async getFilesBySocietyId(society_id: number): Promise<any> {
+    const values = {
+      columns: ['display_name', 'bucket_key'],
+      society_id: society_id
+    };
+
+    return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
   }
 }
 
