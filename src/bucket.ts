@@ -1,6 +1,8 @@
 import AWS from 'aws-sdk'
+import Crypto from 'crypto'
 
 import Database from './database';
+import { errors } from 'pg-promise';
 
 const awsOptions = {
   accessKeyId: process.env.AWS_ACCESS,
@@ -43,5 +45,28 @@ export default class Bucket {
   static async listBySociety(req, res) {
     let society = +req.params.society;
     res.send(await Database.getFilesBySocietyId(society));
+  }
+
+  static async uploadFile(name, society, body, res) {
+    let hash = Crypto.createHmac('sha256', body).digest('hex');
+
+    const params = {
+      Bucket: Bucket.bucketName(),
+      Key: hash,
+      Body: body
+    };
+
+    Bucket.s3().putObject(params, async (perr, pres) => {
+      let result = {};
+      if (perr) {
+        result['status'] = 0;
+        result['body'] = "error: " + perr;
+      } else {
+        Database.putFile(name, hash, society);
+        result['status'] = 1;
+        result['body'] = hash;
+      }
+      res.send(result);
+    });
   }
 }

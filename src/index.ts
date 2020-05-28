@@ -32,7 +32,7 @@ app.get('/event-details/:id', async (req, res) => {
   }
 });
 
-app.get('/mirror/:url', (req, res) => {
+app.get('/mirror/:name/:url', (req, res) => {
   const options = {
     uri: req.params.url,
     encoding: null
@@ -42,19 +42,7 @@ app.get('/mirror/:url', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') [' + response.statusCode + ']');
     } else {
-      const params = {
-        Bucket: Bucket.bucketName(),
-        Key: 'exampleFile',
-        Body: body
-      };
-
-      Bucket.s3().putObject(params, (perr, pres) => {
-        if (perr) {
-          res.send('Error! ' + '--' + body + '--' + perr);
-        } else {
-          res.send('Success!' + req.params.url);
-        }
-      });
+      Bucket.uploadFile(req.params.name, 0, body, res);
     }
   });
 });
@@ -65,6 +53,22 @@ app.get('/file/get/:key', (req, res) => {
 
 app.get('/file/list/:society', (req, res) => {
   Bucket.listBySociety(req, res);
+})
+
+app.get('/events/suggested/:id', async (req, res) => {
+  try {
+    let event = await Database.getEventDetails(+req.params.id);
+    let tags = event.tags;
+    let all = await Database.getAllEventCardDetails();
+
+    let filtered = all.filter(e =>
+      e.id !== event.id && e.tags.some(t => tags.includes(t))
+    );
+    res.send(filtered);
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
 })
 
 app.listen(port, () => {
