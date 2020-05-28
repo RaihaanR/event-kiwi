@@ -91,6 +91,30 @@ app.get('/events/resources/:id', async (req, res) => {
   }
 })
 
+app.get('/events/search', async (req, res) => {
+  let empty = [];
+  try {
+    res.send(await Database.getAllEventCardDetails());
+  } catch (err) {
+    res.send(empty)
+  }
+})
+
+app.get('/events/search/:term', async (req, res) => {
+  let term = req.params.term.toLowerCase();
+  let empty = [];
+  try {
+    let all = await Database.getAllEventCardDetails();
+    let filtered = all.filter(e => {
+      return e.event_name.toLowerCase().includes(term) ||
+      e.tags.some(t => t.toLowerCase() === term)
+    });
+    res.send(filtered);
+  } catch (err) {
+    res.send(empty)
+  }
+});
+
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
 });
