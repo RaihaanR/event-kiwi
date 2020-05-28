@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.get('/event-card-details', async (req, res) => {
+app.get('/events/cards/all', async (req, res) => {
   try {
     res.send(await Database.getAllEventCardDetails());
   } catch (err) {
@@ -23,7 +23,7 @@ app.get('/event-card-details', async (req, res) => {
   }
 });
 
-app.get('/event-details/:id', async (req, res) => {
+app.get('/events/details/:id', async (req, res) => {
   try {
     res.send(await Database.getEventDetails(+req.params.id));
   } catch (err) {
