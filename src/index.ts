@@ -74,7 +74,7 @@ app.get('/events/suggested/:id', async (req, res) => {
 app.get('/events/resources/:id', async (req, res) => {
   try {
     const event = await Database.db().oneOrNone('SELECT * FROM event WHERE event_id = $1', [+req.params.id]);
-    let resources = event.resources;
+    let resources = event['event_resources'];
     res.send(await Database.getFilesByIDs(resources));
   } catch (err) {
     res.send('Error occurred');
