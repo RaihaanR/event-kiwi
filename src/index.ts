@@ -4,6 +4,7 @@ import request from 'request-promise';
 
 import Bucket from './bucket';
 import Database from './database';
+import e from 'express';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -72,13 +73,21 @@ app.get('/events/suggested/:id', async (req, res) => {
 })
 
 app.get('/events/resources/:id', async (req, res) => {
+  let empty = [];
   try {
     const event = await Database.db().oneOrNone('SELECT * FROM event WHERE event_id = $1', [+req.params.id]);
-    let resources = event['event_resources'];
-    res.send(await Database.getFilesByIDs(resources));
+    if (event) {
+      let resources = event['event_resources'];
+      if (resources.length === 0) {
+        res.send(empty);
+      } else {
+        res.send(await Database.getFilesByIDs(resources));
+      }
+    } else {
+      res.send(empty);
+    }
   } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+    res.send(empty)
   }
 })
 
