@@ -9,12 +9,14 @@ const dbOptions = {
   database: process.env.DB_NAME,
   ssl: true
 };
+
 const db = pgp(dbOptions);
 
 export default class Database {
 
-  private static event: string = 'event';
-  private static society: string = 'society';
+  static db() {
+    return db;
+  }
 
   private static async select(columns: string[], table: string): Promise<any[]> {
     const values = {
@@ -29,7 +31,7 @@ export default class Database {
     const values = {
       e_columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
                 'location', 'society_id', 'event_image_src', 'tags'],
-      s_columns: ['society_name', 'society_image_src', 'colour']
+      s_columns: ['society_name', 'society_image_src', 'colour', 'short_name']
     };
 
     const cards = await db.any('SELECT event.${e_columns:name}, society.${s_columns:name} FROM event INNER JOIN society ON (event.society_id = society.id)', values);
@@ -38,12 +40,14 @@ export default class Database {
       cards[i]['society'] = {'id': cards[i]['society_id'],
                              'society_name': cards[i]['society_name'],
                              'society_image_src': cards[i]['society_image_src'],
-                             'colour': cards[i]['colour']};
+                             'colour': cards[i]['colour'],
+                             'short_name': cards[i]['short_name']};
 
       delete cards[i]['society_id'];
       delete cards[i]['society_name'];
       delete cards[i]['society_image_src'];
       delete cards[i]['colour'];
+      delete cards[i]['short_name'];
     }
 
     return cards;
@@ -97,6 +101,7 @@ export default class Database {
     details['same_society_events'] = await Database.getEventCardDetailsBySocietyIdExceptCurrent(details['society'], eventId);
 
     delete details['society_id'];
+
     return details;
   }
 
@@ -111,6 +116,15 @@ export default class Database {
     };
 
     return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
+  }
+
+  static async getFilesByIDs(ids: number[]): Promise<any> {
+    const values = {
+      columns: ['display_name', 'bucket_key'],
+      ids: ids
+    };
+
+    return db.any('SELECT ${columns:name} FROM file WHERE id IN (${ids:csv})', values);
   }
 
   static async putFile(file_name: string, bucket_key: string, society_id: number) {
