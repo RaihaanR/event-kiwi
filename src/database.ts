@@ -9,12 +9,17 @@ const dbOptions = {
   database: process.env.DB_NAME,
   ssl: true
 };
+
 const db = pgp(dbOptions);
 
 export default class Database {
 
   private static event: string = 'event';
   private static society: string = 'society';
+
+  static db() {
+    return db;
+  }
 
   private static async select(columns: string[], table: string): Promise<any[]> {
     const values = {
@@ -111,6 +116,15 @@ export default class Database {
     };
 
     return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
+  }
+
+  static async getFilesByIDs(ids: number[]): Promise<any> {
+    const values = {
+      columns: ['display_name', 'bucket_key'],
+      ids: ids
+    };
+
+    return db.any('SELECT ${columns:name} FROM file WHERE id IN (${ids:csv})', values);
   }
 
   static async putFile(file_name: string, bucket_key: string, society_id: number) {
