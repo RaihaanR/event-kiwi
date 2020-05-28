@@ -27,11 +27,12 @@ export default class Database {
 
   static async getAllEventCardDetails(): Promise<any[]> {
     const values = {
-      columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
-                'location', 'society_id', 'event_image_src', 'tags']
+      e_columns: ['id', 'event_name', 'start_datetime', 'end_datetime',
+                'location', 'society_id', 'event_image_src', 'tags'],
+      s_columns: ['society_name', 'society_image_src', 'colour']
     };
 
-    const cards = await db.any('SELECT event.${columns:name}, society.* FROM event INNER JOIN society on (event.society_id = society.id)', values);
+    const cards = await db.any('SELECT event.${e_columns:name}, society.${s_columns:name} FROM event INNER JOIN society ON (event.society_id = society.id)', values);
 
     for (let i = 0; i < cards.length; i++) {
       cards[i]['society'] = {'id': cards[i]['society_id'],
