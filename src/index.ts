@@ -4,7 +4,6 @@ import request from 'request-promise';
 
 import Bucket from './bucket';
 import Database from './database';
-import e from 'express';
 
 const app = express();
 const port = process.env.PORT || 8080;
