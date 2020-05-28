@@ -51,5 +51,14 @@ export default class Database {
   static async getFileName(file_key: string): Promise<any> {
     return db.oneOrNone('SELECT * FROM file WHERE bucket_key = $1', file_key);
   }
+
+  static async getFilesBySocietyId(society_id: number): Promise<any> {
+    const values = {
+      columns: ['display_name', 'bucket_key'],
+      society_id: society_id
+    };
+
+    return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
+  }
 }
 
