@@ -32,7 +32,7 @@ app.get('/event-details/:id', async (req, res) => {
   }
 });
 
-app.get('/mirror/:url', (req, res) => {
+app.get('/mirror/:name/:url', (req, res) => {
   const options = {
     uri: req.params.url,
     encoding: null
@@ -42,19 +42,7 @@ app.get('/mirror/:url', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') [' + response.statusCode + ']');
     } else {
-      const params = {
-        Bucket: Bucket.bucketName(),
-        Key: 'exampleFile',
-        Body: body
-      };
-
-      Bucket.s3().putObject(params, (perr, pres) => {
-        if (perr) {
-          res.send('Error! ' + '--' + body + '--' + perr);
-        } else {
-          res.send('Success!' + req.params.url);
-        }
-      });
+      Bucket.uploadFile(req.params.name, 0, body, res);
     }
   });
 });
