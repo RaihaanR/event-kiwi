@@ -1,10 +1,9 @@
 import express from 'express';
-import cors from 'cors'
+import cors from 'cors';
 import request from 'request-promise';
 
 import Bucket from './bucket';
 import Database from './database';
-import e from 'express';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -54,7 +53,7 @@ app.get('/file/get/:key', (req, res) => {
 
 app.get('/file/list/:society', (req, res) => {
   Bucket.listBySociety(req, res);
-})
+});
 
 app.get('/events/suggested/:id', async (req, res) => {
   try {
@@ -70,7 +69,7 @@ app.get('/events/suggested/:id', async (req, res) => {
     res.send('Error occurred');
     console.log(err);
   }
-})
+});
 
 app.get('/events/resources/:id', async (req, res) => {
   let empty = [];
@@ -81,7 +80,7 @@ app.get('/events/resources/:id', async (req, res) => {
       if (resources.length === 0) {
         res.send(empty);
       } else {
-        res.send(await Database.getFilesByIDs(resources));
+        res.send(await Database.getFilesByIds(resources));
       }
     } else {
       res.send(empty);
@@ -89,7 +88,7 @@ app.get('/events/resources/:id', async (req, res) => {
   } catch (err) {
     res.send(empty)
   }
-})
+});
 
 app.get('/events/search', async (req, res) => {
   let empty = [];
