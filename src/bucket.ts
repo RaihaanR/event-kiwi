@@ -2,7 +2,6 @@ import AWS from 'aws-sdk'
 import Crypto from 'crypto'
 
 import Database from './database';
-import { errors } from 'pg-promise';
 
 const awsOptions = {
   accessKeyId: process.env.AWS_ACCESS,
@@ -70,3 +69,4 @@ export default class Bucket {
     });
   }
 }
+
