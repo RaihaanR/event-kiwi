@@ -30,6 +30,17 @@ export default class Database {
     delete details['short_name'];
   }
 
+  private static async getEventCardDetails(societyId: number, condition: string): Promise<any[]> {
+    const cards = await db.any(societySQL.findSocietyEventCards, {condition: condition});
+    const society = await this.getSocietyDetails(societyId);
+
+    for (let i = 0; i < cards.length; i++) {
+      cards[i]['society'] = society;
+    }
+
+    return cards;
+  }
+
   static async getAllEventCardDetails(): Promise<any[]> {
     const cards = await db.any(eventSQL.findEventCards);
 
@@ -40,39 +51,17 @@ export default class Database {
     return cards;
   }
 
-  static async getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
-    const values = {
-      condition: pgp.as.format('WHERE society_id = ${society_id}', {society_id: societyId})
-    };
+  static getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
+    const condition = pgp.as.format('WHERE society_id = ${society_id}', {society_id: societyId});
 
-    const cards = await db.any(societySQL.findSocietyEventCards, values);
-    const socDetails = await this.getSocietyDetails(societyId);
-
-    for (let i = 0; i < cards.length; i++) {
-      cards[i]['society'] = socDetails;
-
-      delete cards[i]['society_id'];
-    }
-
-    return cards;
+    return this.getEventCardDetails(societyId, condition);
   }
 
-  static async getOtherEventCardDetailsBySociety(societyId: number, eventId: number): Promise<any[]> {
-    const values = {
-      condition: pgp.as.format('WHERE society_id = ${society_id} AND event_id <> ${event_id}',
-                               {society_id: societyId, event_id: eventId})
-    };
+  static getOtherEventCardDetailsBySociety(societyId: number, eventId: number): Promise<any[]> {
+    const condition = pgp.as.format('WHERE society_id = ${society_id} AND event_id <> ${event_id}',
+                                    {society_id: societyId, event_id: eventId});
 
-    const cards = await db.any(societySQL.findSocietyEventCards, values);
-    const society = await this.getSocietyDetails(societyId);
-
-    for (let i = 0; i < cards.length; i++) {
-      cards[i]['society'] = society;
-
-      delete cards[i]['society_id'];
-    }
-
-    return cards;
+    return this.getEventCardDetails(societyId, condition);
   }
 
   static async getSocietyDetails(societyId: number): Promise<any | null> {
@@ -81,9 +70,9 @@ export default class Database {
 
   static async getEventDetails(eventId: number): Promise<any | null> {
     const details = await db.oneOrNone(eventSQL.findEventDetails, {event_id: eventId});
-    const sameSocietyEvents = await this.getOtherEventCardDetailsBySociety(details['society_id'], eventId);
+    const events = await this.getOtherEventCardDetailsBySociety(details['society_id'], eventId);
 
-    details['same_society_events'] = sameSocietyEvents;
+    details['same_society_events'] = events;
 
     this.mergeSocietyDetails(details);
 
