@@ -54,6 +54,17 @@ test aws:
   except:
     - staging
 
+auth:
+  stage: deploy
+  cache:
+    policy: pull
+  before_script:
+    - npm ci --cache .npm --production
+  script:
+    - dpl --provider=heroku --app=$HEROKU_APP_AUTH --api-key=$HEROKU_API_KEY --skip_cleanup=true
+  only:
+    - auth
+
 staging:
   stage: deploy
   cache:
