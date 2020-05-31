@@ -1,5 +1,7 @@
 import pgPromise from 'pg-promise';
 
+import { event as eventSQL, society as societySQL, file as fileSQL } from './sql';
+
 const dbOptions = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -18,27 +20,25 @@ export default class Database {
     return db;
   }
 
-  static async getAllEventCardDetails(): Promise<any[]> {
-    const values = {
-      e_columns: ['event_id', 'event_name', 'start_datetime', 'end_datetime',
-                  'location', 'event_image_src', 'tags'],
-    };
+  private static mergeSocietyDetails(details: object): void {
+    details['society'] = {'society_id': details['society_id'],
+                          'society_name': details['society_name'],
+                          'society_image_src': details['society_image_src'],
+                          'colour': details['colour'],
+                          'short_name': details['short_name']};
 
-    const query = 'SELECT event.${e_columns:name}, society.* FROM event INNER JOIN society ON (event.society_id = society.society_id)';
-    const cards = await db.any(query, values);
+    delete details['society_id'];
+    delete details['society_name'];
+    delete details['society_image_src'];
+    delete details['colour'];
+    delete details['short_name'];
+  }
+
+  static async getAllEventCardDetails(): Promise<any[]> {
+    const cards = await db.any(eventSQL.findEventCards);
 
     for (let i = 0; i < cards.length; i++) {
-      cards[i]['society'] = {'society_id': cards[i]['society_id'],
-                             'society_name': cards[i]['society_name'],
-                             'society_image_src': cards[i]['society_image_src'],
-                             'colour': cards[i]['colour'],
-                             'short_name': cards[i]['short_name']};
-
-      delete cards[i]['society_id'];
-      delete cards[i]['society_name'];
-      delete cards[i]['society_image_src'];
-      delete cards[i]['colour'];
-      delete cards[i]['short_name'];
+      this.mergeSocietyDetails(cards[i]);
     }
 
     return cards;
@@ -46,13 +46,10 @@ export default class Database {
 
   static async getEventCardDetailsBySocietyId(societyId: number): Promise<any[]> {
     const values = {
-      columns: ['event_id', 'event_name', 'start_datetime', 'end_datetime',
-                'location', 'society_id', 'event_image_src', 'tags'],
-      society_id: societyId
+      condition: pgp.as.format('WHERE society_id = ${society_id}', {society_id: societyId})
     };
 
-    const query = 'SELECT ${columns:name} FROM event WHERE society_id = ${society_id}';
-    const cards = await db.any(query , values);
+    const cards = await db.any(societySQL.findSocietyEventCards, values);
     const socDetails = await this.getSocietyDetails(societyId);
 
     for (let i = 0; i < cards.length; i++) {
@@ -64,16 +61,14 @@ export default class Database {
     return cards;
   }
 
-  static async getEventCardDetailsBySocietyIdExceptCurrent(society: any, eventId: number): Promise<any[]> {
+  static async getOtherEventCardDetailsBySociety(societyId: number, eventId: number): Promise<any[]> {
     const values = {
-      columns: ['event_id', 'event_name', 'start_datetime', 'end_datetime',
-                'location', 'society_id', 'event_image_src', 'tags'],
-      society_id: +society['society_id'],
-      event_id: eventId
+      condition: pgp.as.format('WHERE society_id = ${society_id} AND event_id <> ${event_id}',
+                               {society_id: societyId, event_id: eventId})
     };
 
-    const query = 'SELECT ${columns:name} FROM event WHERE society_id = ${society_id} AND event_id <> ${event_id}';
-    const cards = await db.any(query , values);
+    const cards = await db.any(societySQL.findSocietyEventCards, values);
+    const society = await this.getSocietyDetails(societyId);
 
     for (let i = 0; i < cards.length; i++) {
       cards[i]['society'] = society;
@@ -85,39 +80,30 @@ export default class Database {
   }
 
   static async getSocietyDetails(societyId: number): Promise<any | null> {
-    return db.oneOrNone('SELECT * FROM society WHERE society_id = $1', [societyId]);
+    return db.oneOrNone(societySQL.findSocietyDetails, {society_id: societyId});
   }
 
   static async getEventDetails(eventId: number): Promise<any | null> {
-    const details = await db.oneOrNone('SELECT * FROM event WHERE event_id = $1', [eventId]);
-    details['society'] = await Database.getSocietyDetails(+details['society_id']);
-    details['same_society_events'] = await Database.getEventCardDetailsBySocietyIdExceptCurrent(details['society'], eventId);
+    const details = await db.oneOrNone(eventSQL.findEventDetails, {event_id: eventId});
+    const sameSocietyEvents = await this.getOtherEventCardDetailsBySociety(details['society_id'], eventId);
 
-    delete details['society_id'];
+    details['same_society_events'] = sameSocietyEvents;
+
+    this.mergeSocietyDetails(details);
 
     return details;
   }
 
-  static async getFileName(fileKey: string): Promise<any | null> {
-    return db.oneOrNone('SELECT * FROM file WHERE bucket_key = $1', [fileKey]);
+  static async getFileName(bucketKey: string): Promise<any | null> {
+    return db.oneOrNone(fileSQL.findFileName, {bucket_key: bucketKey});
   }
 
   static async getFilesBySocietyId(societyId: number): Promise<any[]> {
-    const values = {
-      columns: ['display_name', 'bucket_key'],
-      society_id: societyId
-    };
-
-    return db.any('SELECT ${columns:name} FROM file WHERE society_id = ${society_id}', values);
+    return db.any(societySQL.findSocietyFiles, {society_id: societyId});
   }
 
-  static async getFilesByIDs(ids: number[]): Promise<any> {
-    const values = {
-      columns: ['display_name', 'bucket_key'],
-      ids: ids
-    };
-
-    return db.any('SELECT ${columns:name} FROM file WHERE file_id IN (${ids:csv})', values);
+  static async getFilesByIds(fileIds: number[]): Promise<any> {
+    return db.any(fileSQL.findFileDetails, {file_ids: fileIds});
   }
 
   static async putFile(fileName: string, bucketKey: string, societyId: number) {
@@ -127,7 +113,7 @@ export default class Database {
       society_id: societyId
     }
 
-    return db.none('INSERT INTO file (display_name, bucket_key, society_id) VALUES (${file_name:name}, ${bucket_key:name}, ${society_id})', values);
+    return db.none(fileSQL.insertNewFile, values);
   }
 }
 
