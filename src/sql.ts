@@ -8,7 +8,8 @@ function sql(file) {
 
 export const event = {
   findEventDetails: sql('../sql/eventDetails.sql'),
-  findEventCards: sql('../sql/eventCards.sql')
+  findEventCards: sql('../sql/eventCards.sql'),
+  findEventFiles: sql('../sql/eventFiles.sql')
 };
 
 export const society = {
