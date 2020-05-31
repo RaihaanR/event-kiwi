@@ -23,41 +23,27 @@ app.get('/events/cards/all', async (req, res) => {
   }
 });
 
-app.get('/events/details/:id', async (req, res) => {
+app.get('/events/details/:eventId', async (req, res) => {
   try {
-    res.send(await Database.getEventDetails(+req.params.id));
+    res.send(await Database.getEventDetails(+req.params['eventId']));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
   }
 });
 
-app.get('/mirror/:name/:url', (req, res) => {
-  const options = {
-    uri: req.params.url,
-    encoding: null
-  };
-
-  request(options, (error, response, body) => {
-    if (error || response.statusCode !== 200) {
-      res.send('Error (' + error + ') [' + response.statusCode + ']');
-    } else {
-      Bucket.uploadFile(req.params.name, 0, body, res);
-    }
-  });
-});
-
-app.get('/file/get/:key', (req, res) => {
-  Bucket.downloadByKey(req, res);
-});
-
-app.get('/file/list/:society', (req, res) => {
-  Bucket.listBySociety(req, res);
-});
-
-app.get('/events/suggested/:id', async (req, res) => {
+app.get('/events/resources/:eventId', async (req, res) => {
   try {
-    let event = await Database.getEventDetails(+req.params.id);
+    res.send(await Database.getFilesByEvent(+req.params['eventId']));
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.get('/events/suggested/:eventId', async (req, res) => {
+  try {
+    let event = await Database.getEventDetails(+req.params['eventId']);
     let tags = event.tags;
     let all = await Database.getAllEventCardDetails();
 
@@ -71,46 +57,31 @@ app.get('/events/suggested/:id', async (req, res) => {
   }
 });
 
-app.get('/events/resources/:id', async (req, res) => {
-  let empty = [];
-  try {
-    const event = await Database.db().oneOrNone('SELECT * FROM event WHERE event_id = $1', [+req.params.id]);
-    if (event) {
-      let resources = event['event_resources'];
-      if (resources.length === 0) {
-        res.send(empty);
-      } else {
-        res.send(await Database.getFilesByIds(resources));
-      }
+app.get('/mirror/:name/:uri', (req, res) => {
+  const options = {
+    uri: req.params['uri'],
+    encoding: null
+  };
+
+  request(options, (error, response, body) => {
+    if (error || response.statusCode !== 200) {
+      res.send('Error (' + error + ') [' + response.statusCode + ']');
     } else {
-      res.send(empty);
+      Bucket.uploadFile(req.params['name'], 0, body, res);
     }
-  } catch (err) {
-    res.send(empty)
-  }
+  });
 });
 
-app.get('/events/search', async (req, res) => {
-  let empty = [];
-  try {
-    res.send(await Database.getAllEventCardDetails());
-  } catch (err) {
-    res.send(empty)
-  }
-})
+app.get('/file/get/:key', (req, res) => {
+  Bucket.downloadByKey(req, res);
+});
 
-app.get('/events/search/:term', async (req, res) => {
-  let term = req.params.term.toLowerCase();
-  let empty = [];
+app.get('/file/list/:societyId', async (req, res) => {
   try {
-    let all = await Database.getAllEventCardDetails();
-    let filtered = all.filter(e => {
-      return e.event_name.toLowerCase().includes(term) ||
-      e.tags.some(t => t.toLowerCase() === term)
-    });
-    res.send(filtered);
+    res.send(await Database.getFilesBySociety(+req.params['societyId']));
   } catch (err) {
-    res.send(empty)
+    res.send('Error occurred');
+    console.log(err);
   }
 });
 

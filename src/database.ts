@@ -16,10 +16,6 @@ const db = pgp(dbOptions);
 
 export default class Database {
 
-  static db() {
-    return db;
-  }
-
   private static mergeSocietyDetails(details: object): void {
     details['society'] = {'society_id': details['society_id'],
                           'society_name': details['society_name'],
@@ -44,7 +40,7 @@ export default class Database {
     return cards;
   }
 
-  static async getEventCardDetailsBySocietyId(societyId: number): Promise<any[]> {
+  static async getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
     const values = {
       condition: pgp.as.format('WHERE society_id = ${society_id}', {society_id: societyId})
     };
@@ -98,8 +94,12 @@ export default class Database {
     return db.oneOrNone(fileSQL.findFileName, {bucket_key: bucketKey});
   }
 
-  static async getFilesBySocietyId(societyId: number): Promise<any[]> {
+  static async getFilesBySociety(societyId: number): Promise<any[]> {
     return db.any(societySQL.findSocietyFiles, {society_id: societyId});
+  }
+
+  static async getFilesByEvent(eventId: number): Promise<any[]> {
+    return db.any(eventSQL.findEventFiles, {event_id: eventId});
   }
 
   static async getFilesByIds(fileIds: number[]): Promise<any> {
