@@ -1,3 +1,6 @@
-SELECT *
-FROM society
-WHERE society_id = ${society_id}
+SELECT
+  *
+FROM
+  society
+WHERE
+  society_id = ${society_id}
