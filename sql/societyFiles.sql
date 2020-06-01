@@ -1,7 +1,7 @@
 SELECT
-  display_name,
-  bucket_key
+  "display_name",
+  "bucket_key"
 FROM
-  file
+  "files"
 WHERE
-  society_id = ${society_id}
+  "society_id" = ${society_id}

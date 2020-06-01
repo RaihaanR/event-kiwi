@@ -105,11 +105,11 @@ export default class Database {
     return db.none(fileSQL.insertNewFile, values);
   }
 
-  static async getUserFromAuthID(id: string): Promise<any | null> {
-    return db.oneOrNone(authSQL.findUserByID, {id: id});
+  static async getUserFromAuthID(authId: string): Promise<any | null> {
+    return db.oneOrNone(authSQL.findUserByAuthId, {auth_id: authId});
   }
 
-  static async putUser(id: string, firstname: string, surname: string, email: string) {
+  static async putUser(id: string, firstname: string, surname: string, email: string): Promise<any> {
     const values = {
       auth_id: id,
       firstname: firstname,
@@ -120,11 +120,11 @@ export default class Database {
     return db.one(authSQL.insertNewUser, values);
   }
 
-  static async deleteTokenByUser(id: number) {
-    return db.none(authSQL.deleteTokenByUser, {id: id});
+  static async deleteTokenByUser(userId: number): Promise<null> {
+    return db.none(authSQL.deleteTokenByUser, {user_id: userId});
   }
 
-  static async deleteTokenByValue(val: string) {
+  static async deleteTokenByValue(val: string): Promise<null> {
     return db.none(authSQL.deleteTokenByValue, {val: val});
   }
 
@@ -132,11 +132,12 @@ export default class Database {
     return db.oneOrNone(authSQL.checkTokenExists, {token: token});
   }
 
-  static async putToken(token: string, uid: number) {
+  static async putToken(token: string, userId: number, bearer: string): Promise<null> {
     const values = {
       token: token,
-      uid: uid
-    };
+      user_id: userId,
+      access_token: bearer
+    }
 
     return db.none(authSQL.insertNewToken, values);
   }
