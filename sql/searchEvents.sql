@@ -10,14 +10,7 @@ FROM
   "events"
   INNER JOIN "societies" USING ("society_id")
 WHERE
-  "event_name" ILIKE ${event_name_pattern}
-  OR "society_name" ILIKE ${society_name_pattern}
-  OR "short_name" ILIKE ${short_name_pattern}
-  OR EXISTS (
-    SELECT
-      *
-    FROM
-      unnest("tags") AS "tag"
-    WHERE
-      "tag" ILIKE ANY(${tags_patterns})
-  )
+  "event_name" ILIKE ${pattern}
+  OR "society_name" ILIKE ${pattern}
+  OR "short_name" ILIKE ${pattern}
+  OR ${search_term} = ANY("tags")
