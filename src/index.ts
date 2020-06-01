@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
+import { errors } from 'pg-promise';
 
 import Bucket from './bucket';
 import Database from './database';
+import Auth from './auth';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -84,6 +86,18 @@ app.get('/file/list/:societyId', async (req, res) => {
     console.log(err);
   }
 });
+
+app.get('/auth/new/:token', async (req, res) => {
+  res.send(await Auth.validateBearer(req.params.token));
+});
+
+app.get('/auth/end/:token', async (req, res) => {
+  res.send(await Auth.deleteToken(req.params.token));
+});
+
+app.get('/auth/whoami/:token', async (req, res) => {
+  res.send(await Auth.loadUser(req.params.token));
+})
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);

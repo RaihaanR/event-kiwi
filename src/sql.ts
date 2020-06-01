@@ -25,3 +25,13 @@ export const file = {
   insertNewFile: sql('../sql/newFile.sql')
 };
 
+export const auth = {
+  deleteTokenByUser: sql('../sql/deleteTokenUser.sql'),
+  deleteTokenByValue: sql('../sql/deleteTokenValue.sql'),
+  checkTokenExists: sql('../sql/checkToken.sql'),
+  insertNewToken: sql('../sql/newToken.sql'),
+  insertNewUser: sql('../sql/newUser.sql'),
+  findUserByID: sql('../sql/userById.sql'),
+  findUserByToken: sql('../sql/userFromToken.sql')
+}
+
