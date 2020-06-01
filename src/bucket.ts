@@ -43,7 +43,7 @@ export default class Bucket {
 
   static async listBySociety(req, res) {
     let society = +req.params.society;
-    res.send(await Database.getFilesBySocietyId(society));
+    res.send(await Database.getFilesBySociety(society));
   }
 
   static async uploadFile(name, society, body, res) {
