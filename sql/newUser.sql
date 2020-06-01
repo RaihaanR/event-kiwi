@@ -7,7 +7,7 @@ INSERT INTO
   )
 VALUES
   (
-    ${auth_id}, ${first_name}, ${last_name}, ${email}
+    ${auth_id}, ${first_name}, ${surname}, ${email}
   )
 RETURNING
   *
