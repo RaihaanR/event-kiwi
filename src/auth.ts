@@ -41,7 +41,7 @@ export default class Auth {
       const token = await Auth.generateToken();
 
       await Database.deleteTokenByUser(row.user_id);
-      await Database.putToken(token, row.user_id);
+      await Database.putToken(token, row.user_id, bearer);
 
       const result = {
         status: 1,

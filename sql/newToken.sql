@@ -1,9 +1,10 @@
 INSERT INTO
   token (
     val,
-    user_id
+    user_id,
+    access_token
   )
 VALUES
   (
-    ${token}, ${uid}
+    ${token}, ${uid}, ${access}
   )
