@@ -5,8 +5,8 @@ FROM
     SELECT
       *
     FROM
-      event
+      "events"
     WHERE
-      event_id = ${event_id}
-  ) AS event
-  INNER JOIN society USING (society_id)
+      "event_id" = ${event_id}
+  ) AS "events"
+  INNER JOIN "societies" USING ("society_id")

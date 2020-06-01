@@ -1,4 +1,4 @@
 DELETE FROM
-  token
+  "tokens"
 WHERE
-  val = ${val}
+  "val" = ${val}

@@ -1,6 +1,6 @@
 SELECT
-  display_name
+  "display_name"
 FROM
-  file
+  "files"
 WHERE
-  bucket_key = ${bucket_key}
+  "bucket_key" = ${bucket_key}

@@ -1,6 +1,6 @@
 SELECT
   *
 FROM
-  token
+  "tokens"
 WHERE
-  val = ${token}
+  "val" = ${token}

@@ -3,6 +3,7 @@ import path from 'path';
 
 function sql(file) {
   const fullPath = path.join(__dirname, file);
+
   return new QueryFile(fullPath, {minify: true});
 }
 
@@ -31,7 +32,7 @@ export const auth = {
   checkTokenExists: sql('../sql/checkToken.sql'),
   insertNewToken: sql('../sql/newToken.sql'),
   insertNewUser: sql('../sql/newUser.sql'),
-  findUserByID: sql('../sql/userById.sql'),
+  findUserByAuthId: sql('../sql/userByAuthId.sql'),
   findUserByToken: sql('../sql/userFromToken.sql')
-}
+};
 
