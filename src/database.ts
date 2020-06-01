@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, profile as profileSQL } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
@@ -158,11 +158,11 @@ export default class Database {
   }
 
   static async listSubscriptions(uid: number): Promise<any[] | null> {
-    return db.manyOrNone("SELECT societies.society_image_src, societies.short_name, memberships.type FROM societies INNER JOIN memberships ON societies.society_id = memberships.society_id WHERE memberships.user_id = ${uid}", {uid: uid});
+    return db.manyOrNone(profileSQL.listSocieties, {uid: uid});
   }
 
   static async listInterests(uid: number): Promise<any[] | null> {
-    return db.manyOrNone("SELECT tags.val FROM tags INNER JOIN interests ON tags.tag_id = interests.tag_id WHERE interests.user_id = ${uid}", {uid: uid});
+    return db.manyOrNone(profileSQL.listInterests, {uid: uid});
   }
 }
 
