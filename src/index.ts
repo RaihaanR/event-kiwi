@@ -96,7 +96,7 @@ app.get('/auth/end/:token', async (req, res) => {
 });
 
 app.get('/auth/whoami/:token', async (req, res) => {
-  res.send(await Auth.loadUser(req.params.token));
+  res.send(await Auth.loadUser(req.header['X-Token']));
 })
 
 app.listen(port, () => {

@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, auth } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
