@@ -81,12 +81,10 @@ export default class Database {
 
   static async searchEvents(query: any): Promise<any[]> {
     const values = {
-      event_name_pattern: '%' + query + '%',
-      society_name_pattern: '%' + query + '%',
-      short_name_pattern: '%' + query + '%',
-      tags_patterns: [query, '% ' + query, query + ' %', '% ' + query + ' %']
+      pattern: '%' + query + '%',
+      search_term: query
     };
-    
+
     return db.any(eventSQL.searchEvents, values);
   }
 
