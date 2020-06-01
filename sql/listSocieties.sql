@@ -1,10 +1,9 @@
 SELECT
-  societies.society_image_src,
-  societies.short_name,
-  memberships.type
+  "societies"."society_image_src",
+  "societies"."short_name",
+  "memberships"."type"
 FROM
-  societies
-INNER JOIN
-  memberships ON societies.society_id = memberships.society_id
+  "societies"
+  INNER JOIN "memberships" USING ("society_id")
 WHERE
-  memberships.user_id = ${uid}
+  "user_id" = ${user_id}

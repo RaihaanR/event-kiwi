@@ -40,4 +40,5 @@ export const auth = {
 export const profile = {
   listInterests: sql('../sql/listInterests.sql'),
   listSocieties: sql('../sql/listSocieties.sql')
-}
+};
+
