@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import { errors } from 'pg-promise';
+import bodyParser from 'body-parser';
 
 import Bucket from './bucket';
 import Database from './database';
@@ -11,6 +12,10 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -87,16 +92,18 @@ app.get('/file/list/:societyId', async (req, res) => {
   }
 });
 
-app.get('/auth/new/:token', async (req, res) => {
-  res.send(await Auth.validateBearer(req.params.token));
+app.post('/auth/new', async (req, res) => {
+  res.send(await Auth.validateBearer(req.body.token));
 });
 
-app.get('/auth/end/:token', async (req, res) => {
-  res.send(await Auth.deleteToken(req.params.token));
+app.get('/auth/end', async (req, res) => {
+  let extract = Auth.extractBearer(req.headers.authorization);
+  res.send(await Auth.deleteToken(extract));
 });
 
-app.get('/auth/whoami/:token', async (req, res) => {
-  res.send(await Auth.loadUser(req.params.token));
+app.get('/auth/whoami/', async (req, res) => {
+  let extract = Auth.extractBearer(req.headers.authorization);
+  res.send(await Auth.loadUser(extract));
 })
 
 app.listen(port, () => {
