@@ -45,14 +45,23 @@ app.get('/events/resources/:eventId', async (req, res) => {
 
 app.get('/events/suggested/:eventId', async (req, res) => {
   try {
-    let event = await Database.getEventDetails(+req.params['eventId']);
-    let tags = event.tags;
-    let all = await Database.getAllEventCardDetails();
-
-    let filtered = all.filter(e =>
+    const event = await Database.getEventDetails(+req.params['eventId']);
+    const all = await Database.getAllEventCardDetails();
+    const tags = event['tags'];
+    const filtered = all.filter(e =>
       e.id !== event.id && e.tags.some(t => tags.includes(t))
     );
+
     res.send(filtered);
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.get('/events/search', async (req, res) => {
+  try {
+    res.send(await Database.searchEvents(req.query['q']));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -88,15 +97,15 @@ app.get('/file/list/:societyId', async (req, res) => {
 });
 
 app.get('/auth/new/:token', async (req, res) => {
-  res.send(await Auth.validateBearer(req.params.token));
+  res.send(await Auth.validateBearer(req.params['token']));
 });
 
 app.get('/auth/end/:token', async (req, res) => {
-  res.send(await Auth.deleteToken(req.params.token));
+  res.send(await Auth.deleteToken(req.params['token']));
 });
 
 app.get('/auth/whoami/:token', async (req, res) => {
-  res.send(await Auth.loadUser(req.params.token));
+  res.send(await Auth.loadUser(req.params['token']));
 })
 
 app.listen(port, () => {

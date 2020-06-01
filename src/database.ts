@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, auth } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
@@ -79,6 +79,17 @@ export default class Database {
     return details;
   }
 
+  static async searchEvents(query: any): Promise<any[]> {
+    const values = {
+      event_name_pattern: '%' + query + '%',
+      society_name_pattern: '%' + query + '%',
+      short_name_pattern: '%' + query + '%',
+      tags_patterns: [query, '% ' + query, query + ' %', '% ' + query + ' %']
+    };
+    
+    return db.any(eventSQL.searchEvents, values);
+  }
+
   static async getFileName(bucketKey: string): Promise<any | null> {
     return db.oneOrNone(fileSQL.findFileName, {bucket_key: bucketKey});
   }
@@ -100,7 +111,7 @@ export default class Database {
       file_name: fileName,
       bucket_key: bucketKey,
       society_id: societyId
-    }
+    };
 
     return db.none(fileSQL.insertNewFile, values);
   }
@@ -109,11 +120,11 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByAuthId, {auth_id: authId});
   }
 
-  static async putUser(id: string, firstname: string, surname: string, email: string): Promise<any> {
+  static async putUser(authId: string, firstName: string, lastName: string, email: string): Promise<any> {
     const values = {
-      auth_id: id,
-      firstname: firstname,
-      surname: surname,
+      auth_id: authId,
+      first_name: firstName,
+      last_name: lastName,
       email: email
     };
 
@@ -124,8 +135,8 @@ export default class Database {
     return db.none(authSQL.deleteTokenByUser, {user_id: userId});
   }
 
-  static async deleteTokenByValue(val: string): Promise<null> {
-    return db.none(authSQL.deleteTokenByValue, {val: val});
+  static async deleteTokenByValue(token: string): Promise<null> {
+    return db.none(authSQL.deleteTokenByValue, {token: token});
   }
 
   static async checkToken(token: string): Promise<any | null> {
@@ -137,7 +148,7 @@ export default class Database {
       token: token,
       user_id: userId,
       access_token: bearer
-    }
+    };
 
     return db.none(authSQL.insertNewToken, values);
   }
