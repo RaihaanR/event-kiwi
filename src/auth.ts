@@ -5,12 +5,13 @@ import crypto from 'crypto';
 import Database from './database';
 
 export default class Auth {
+
   static async deleteToken(token: string) {
     return Database.deleteTokenByValue(token);
   }
 
   static async loadUser(token: string) {
-    let row = await Database.getUserFromToken(token);
+    const row = await Database.getUserFromToken(token);
 
     if (row) {
       const user = {
@@ -18,6 +19,7 @@ export default class Auth {
         surname: row.surname,
         email: row.email
       };
+
       return user;
     }
 
@@ -39,6 +41,7 @@ export default class Auth {
       const external = user.id;
 
       let row = await Database.getUserFromAuthID(external);
+
       if (!row) {
         row = await Database.putUser(external, user.givenName, user.surname, user.mail);
       }
@@ -59,12 +62,14 @@ export default class Auth {
           }
         }
       };
+
       return result;
     } catch (err) {
       const result = {
         status: 0,
-        body: "ERROR"
+        body: 'ERROR'
       };
+
       return result;
     }
   }
@@ -91,17 +96,19 @@ export default class Auth {
 
   static extractBearer(header: string) {
     if (header) {
-      let parts = header.split(' ');
+      const parts = header.split(' ');
+
       if (parts.length === 2) {
-        let scheme = parts[0];
-        let token = parts[1];
+        const scheme = parts[0];
+        const token = parts[1];
 
         if (/^Bearer$/i.test(scheme)) {
           return token;
         }
       }
     }
-    return "";
+
+    return '';
   }
 }
 
