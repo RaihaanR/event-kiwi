@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, auth } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
@@ -106,7 +106,7 @@ export default class Database {
   }
 
   static async getUserFromAuthID(id: string): Promise<any | null> {
-    return db.oneOrNone("SELECT * FROM users WHERE auth_id = ${id}", {id: id});
+    return db.oneOrNone(authSQL.findUserByID, {id: id});
   }
 
   static async putUser(id: string, firstname: string, surname: string, email: string) {
@@ -117,19 +117,19 @@ export default class Database {
       email: email
     };
 
-    return db.one("INSERT INTO users (auth_id, firstname, surname, email) VALUES (${auth_id}, ${firstname}, ${surname}, ${email}) RETURNING *", values);
+    return db.one(authSQL.insertNewUser, values);
   }
 
   static async deleteTokenByUser(id: number) {
-    return db.none("DELETE FROM token WHERE user_id = ${id}", {id: id});
+    return db.none(authSQL.deleteTokenByUser, {id: id});
   }
 
   static async deleteTokenByValue(val: string) {
-    return db.none("DELETE FROM token WHERE val = ${val}", {val: val});
+    return db.none(authSQL.deleteTokenByValue, {val: val});
   }
 
   static async checkToken(token: string): Promise<any | null> {
-    return db.oneOrNone("SELECT * FROM token WHERE val = ${token}", {token: token});
+    return db.oneOrNone(authSQL.checkTokenExists, {token: token});
   }
 
   static async putToken(token: string, uid: number) {
@@ -138,11 +138,11 @@ export default class Database {
       uid: uid
     };
 
-    return db.none("INSERT INTO token (val, user_id) VALUES (${token}, ${uid})", values);
+    return db.none(authSQL.insertNewToken, values);
   }
 
   static async getUserFromToken(token: string): Promise<any | null> {
-    return db.oneOrNone("SELECT users.* FROM users INNER JOIN token ON token.user_id=users.user_id WHERE token.val = ${token}", {token: token});
+    return db.oneOrNone(authSQL.findUserByToken, {token: token});
   }
 }
 
