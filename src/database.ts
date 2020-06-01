@@ -120,11 +120,11 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByAuthId, {auth_id: authId});
   }
 
-  static async putUser(authId: string, firstName: string, lastName: string, email: string): Promise<any> {
+  static async putUser(authId: string, firstName: string, surname: string, email: string): Promise<any> {
     const values = {
       auth_id: authId,
       first_name: firstName,
-      last_name: lastName,
+      surname: surname,
       email: email
     };
 

@@ -8,7 +8,7 @@ SELECT
   "tags"
 FROM
   "events"
-  INNER JOIN "societies" USING (society_id)
+  INNER JOIN "societies" USING ("society_id")
 WHERE
   "event_name" ILIKE ${event_name_pattern}
   OR "society_name" ILIKE ${society_name_pattern}
