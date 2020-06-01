@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
+import { errors } from 'pg-promise';
 
 import Bucket from './bucket';
 import Database from './database';
@@ -112,6 +113,35 @@ app.get('/events/search/:term', async (req, res) => {
   } catch (err) {
     res.send(empty)
   }
+});
+
+app.get('/auth/:token', async (req, res) => {
+  let token = req.params.token;
+  const options = {
+    method: 'GET',
+    uri: 'https://graph.microsoft.com/v1.0/me',
+    auth: {
+      'bearer': token
+    }
+  };
+  request(options).then(body => {
+    const user = JSON.parse(body);
+    let result = {
+      status: 1,
+      body: {
+        firstname: user.givenName,
+        surname: user.surname,
+        mail: user.mail
+      }
+    };
+    res.send(result);
+  }).catch(err => {
+    let result = {
+      status: 0,
+      body: "ERROR"
+    };
+    res.send(result);
+  });
 });
 
 app.listen(port, () => {
