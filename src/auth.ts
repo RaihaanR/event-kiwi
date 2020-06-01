@@ -11,12 +11,17 @@ export default class Auth {
 
   static async loadUser(token: string) {
     let row = await Database.getUserFromToken(token);
-    const user = {
-      firstname: row.firstname,
-      surname: row.surname,
-      email: row.email
-    };
-    return user;
+
+    if (row) {
+      const user = {
+        firstname: row.firstname,
+        surname: row.surname,
+        email: row.email
+      };
+      return user;
+    }
+
+    return {};
   }
 
   static async validateBearer(bearer: string) {
@@ -82,5 +87,20 @@ export default class Auth {
 
   static randomToken() {
     return crypto.randomBytes(32).toString('hex');
+  }
+
+  static extractBearer(header: string) {
+    if (header) {
+      let parts = header.split(' ');
+      if (parts.length === 2) {
+        let scheme = parts[0];
+        let token = parts[1];
+
+        if (/^Bearer$/i.test(scheme)) {
+          return token;
+        }
+      }
+    }
+    return "";
   }
 }
