@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, profile as profileSQL } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
@@ -155,6 +155,14 @@ export default class Database {
 
   static async getUserFromToken(token: string): Promise<any | null> {
     return db.oneOrNone(authSQL.findUserByToken, {token: token});
+  }
+
+  static async listSubscriptions(uid: number): Promise<any[] | null> {
+    return db.manyOrNone(profileSQL.listSocieties, {uid: uid});
+  }
+
+  static async listInterests(uid: number): Promise<any[] | null> {
+    return db.manyOrNone(profileSQL.listInterests, {uid: uid});
   }
 }
 

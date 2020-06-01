@@ -37,3 +37,7 @@ export const auth = {
   findUserByToken: sql('../sql/userFromToken.sql')
 };
 
+export const profile = {
+  listInterests: sql('../sql/listInterests.sql'),
+  listSocieties: sql('../sql/listSocieties.sql')
+}

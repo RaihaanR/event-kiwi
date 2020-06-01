@@ -7,9 +7,13 @@ import bodyParser from 'body-parser';
 import Bucket from './bucket';
 import Database from './database';
 import Auth from './auth';
+import Profile from './profile';
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+const empty = [];
+const nothing = {};
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -106,16 +110,57 @@ app.post('/auth/new', async (req, res) => {
 });
 
 app.get('/auth/end', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers['authorization']);
-
-  res.send(await Auth.deleteToken(extract));
+  let extract = Auth.extractBearer(req.headers.authorization);
+  await Auth.deleteToken(extract)
+  res.send(nothing);
 });
 
-app.get('/auth/whoami/', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers['authorization']);
-
+app.get('/auth/whoami', async (req, res) => {
+  let extract = Auth.extractBearer(req.headers.authorization);
   res.send(await Auth.loadUser(extract));
 });
+
+app.get('/profile/societies', async (req, res) => {
+  let result = empty;
+  let extract = Auth.extractBearer(req.headers.authorization);
+  if (extract !== "") {
+    const user = await Profile.basicInfo(extract);
+    if (user) {
+      result = await Profile.societies(user.user_id);
+    }
+  }
+  res.send(result);
+});
+
+app.get('/profile/interests', async (req, res) => {
+  let result = empty;
+  let extract = Auth.extractBearer(req.headers.authorization);
+  if (extract !== "") {
+    const user = await Profile.basicInfo(extract);
+    if (user) {
+      result = await Profile.interests(user.user_id);
+    }
+  }
+  res.send(result);
+});
+
+app.get('/profile/all', async (req, res) => {
+  let result = nothing;
+  let extract = Auth.extractBearer(req.headers.authorization);
+  if (extract !== "") {
+    const user = await Profile.basicInfo(extract);
+    if (user) {
+      result = {
+        firstname: user.firstname,
+        surname: user.surname,
+        email: user.email,
+        societies: await Profile.societies(user.user_id),
+        interests: await Profile.interests(user.user_id)
+      };
+    }
+  }
+  res.send(result);
+})
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
