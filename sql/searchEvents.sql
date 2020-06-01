@@ -14,4 +14,4 @@ WHERE
   "event_name" ILIKE ${pattern}
   OR "society_name" ILIKE ${pattern}
   OR "short_name" ILIKE ${pattern}
-  OR ${search_term} = ANY("tags")
+  OR ${search_term} ILIKE ANY("tags")
