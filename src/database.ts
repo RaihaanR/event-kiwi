@@ -132,11 +132,12 @@ export default class Database {
     return db.oneOrNone(authSQL.checkTokenExists, {token: token});
   }
 
-  static async putToken(token: string, userId: number): Promise<null> {
+  static async putToken(token: string, userId: number, bearer: string): Promise<null> {
     const values = {
       token: token,
-      user_id: userId
-    };
+      user_id: userId,
+      access_token: bearer
+    }
 
     return db.none(authSQL.insertNewToken, values);
   }
