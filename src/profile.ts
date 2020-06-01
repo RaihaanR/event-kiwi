@@ -7,6 +7,7 @@ export default class Profile {
   }
 
   static async societies(uid: number) {
-    return await Database.listSubscriptions(uid);
+    let societies = await Database.listSubscriptions(uid);
+    return societies ? societies : [];
   }
 }

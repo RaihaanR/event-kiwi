@@ -117,14 +117,28 @@ app.get('/profile/societies', async (req, res) => {
   if (extract !== "") {
     const user = await Profile.basicInfo(extract);
     if (user) {
-      const societies = await Profile.societies(user.user_id);
-      if (societies) {
-        result = societies;
-      }
+      result = await Profile.societies(user.user_id);
     }
   }
   res.send(result);
 });
+
+app.get('/profile/all', async (req, res) => {
+  let result = nothing;
+  let extract = Auth.extractBearer(req.headers.authorization);
+  if (extract !== "") {
+    const user = await Profile.basicInfo(extract);
+    if (user) {
+      result = {
+        firstname: user.firstname,
+        surname: user.surname,
+        email: user.email,
+        societies: await Profile.societies(user.user_id)
+      };
+    }
+  }
+  res.send(result);
+})
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
