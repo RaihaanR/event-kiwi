@@ -10,4 +10,10 @@ export default class Profile {
     let societies = await Database.listSubscriptions(uid);
     return societies ? societies : [];
   }
+
+  static async interests(uid: number) {
+    let interests = await Database.listInterests(uid);
+    interests = interests ? interests : [];
+    return interests.map(i => i.val);
+  }
 }

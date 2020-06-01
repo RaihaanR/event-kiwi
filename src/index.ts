@@ -54,14 +54,23 @@ app.get('/events/resources/:eventId', async (req, res) => {
 
 app.get('/events/suggested/:eventId', async (req, res) => {
   try {
-    let event = await Database.getEventDetails(+req.params['eventId']);
-    let tags = event.tags;
-    let all = await Database.getAllEventCardDetails();
-
-    let filtered = all.filter(e =>
+    const event = await Database.getEventDetails(+req.params['eventId']);
+    const all = await Database.getAllEventCardDetails();
+    const tags = event['tags'];
+    const filtered = all.filter(e =>
       e.id !== event.id && e.tags.some(t => tags.includes(t))
     );
+
     res.send(filtered);
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.get('/events/search', async (req, res) => {
+  try {
+    res.send(await Database.searchEvents(req.query['q']));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -97,7 +106,7 @@ app.get('/file/list/:societyId', async (req, res) => {
 });
 
 app.post('/auth/new', async (req, res) => {
-  res.send(await Auth.validateBearer(req.body.token));
+  res.send(await Auth.validateBearer(req.body['token']));
 });
 
 app.get('/auth/end', async (req, res) => {
@@ -123,6 +132,18 @@ app.get('/profile/societies', async (req, res) => {
   res.send(result);
 });
 
+app.get('/profile/interests', async (req, res) => {
+  let result = empty;
+  let extract = Auth.extractBearer(req.headers.authorization);
+  if (extract !== "") {
+    const user = await Profile.basicInfo(extract);
+    if (user) {
+      result = await Profile.interests(user.user_id);
+    }
+  }
+  res.send(result);
+});
+
 app.get('/profile/all', async (req, res) => {
   let result = nothing;
   let extract = Auth.extractBearer(req.headers.authorization);
@@ -133,7 +154,8 @@ app.get('/profile/all', async (req, res) => {
         firstname: user.firstname,
         surname: user.surname,
         email: user.email,
-        societies: await Profile.societies(user.user_id)
+        societies: await Profile.societies(user.user_id),
+        interests: await Profile.interests(user.user_id)
       };
     }
   }
