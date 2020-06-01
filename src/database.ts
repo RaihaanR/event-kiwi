@@ -137,7 +137,7 @@ export default class Database {
       token: token,
       user_id: userId,
       access_token: bearer
-    };
+    }
 
     return db.none(authSQL.insertNewToken, values);
   }
