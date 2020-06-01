@@ -10,7 +10,8 @@ function sql(file) {
 export const event = {
   findEventDetails: sql('../sql/eventDetails.sql'),
   findEventCards: sql('../sql/eventCards.sql'),
-  findEventFiles: sql('../sql/eventFiles.sql')
+  findEventFiles: sql('../sql/eventFiles.sql'),
+  searchEvents: sql('../sql/searchEvents.sql')
 };
 
 export const society = {
@@ -34,5 +35,10 @@ export const auth = {
   insertNewUser: sql('../sql/newUser.sql'),
   findUserByAuthId: sql('../sql/userByAuthId.sql'),
   findUserByToken: sql('../sql/userFromToken.sql')
+};
+
+export const profile = {
+  listInterests: sql('../sql/listInterests.sql'),
+  listSocieties: sql('../sql/listSocieties.sql')
 };
 
