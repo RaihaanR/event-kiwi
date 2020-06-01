@@ -1,5 +1,8 @@
 import pgPromise from 'pg-promise';
 import request from 'request-promise';
+import crypto from 'crypto';
+
+import Database from './database';
 
 export default class Auth {
   static async validateBearer(bearer: string) {
@@ -10,23 +13,60 @@ export default class Auth {
         'bearer': bearer
       }
     };
-    request(options).then(body => {
+
+    try {
+      const body = await request(options);
       const user = JSON.parse(body);
-      let result = {
+      const external = user.id;
+
+      let row = await Database.getUserFromAuthID(external);
+      if (!row) {
+        row = await Database.putUser(external, user.givenName, user.surname, user.mail);
+      }
+
+      const token = await Auth.generateToken();
+
+      await Database.deleteTokenByUser(row.user_id);
+      await Database.putToken(token, row.user_id);
+
+      const result = {
         status: 1,
         body: {
-          firstname: user.givenName,
-          surname: user.surname,
-          mail: user.mail
+          token: token,
+          profile: {
+            firstname: row.firstname,
+            surname: row.surname,
+            email: row.email
+          }
         }
       };
       return result;
-    }).catch(err => {
-      let result = {
+    } catch (err) {
+      const result = {
         status: 0,
         body: "ERROR"
       };
       return result;
-    });
+    }
+  }
+
+  static async generateToken() {
+    let success = false;
+    let token = '';
+
+    while (!success) {
+      token = Auth.randomToken();
+      const row = await Database.checkToken(token);
+
+      if (!row) {
+        success = true;
+      }
+    }
+
+    return token;
+  }
+
+  static randomToken() {
+    return crypto.randomBytes(32).toString('hex');
   }
 }

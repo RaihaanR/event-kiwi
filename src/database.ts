@@ -104,5 +104,37 @@ export default class Database {
 
     return db.none(fileSQL.insertNewFile, values);
   }
+
+  static async getUserFromAuthID(id: string): Promise<any | null> {
+    return db.oneOrNone("SELECT * FROM users WHERE auth_id = ${id}", {id: id});
+  }
+
+  static async putUser(id: string, firstname: string, surname: string, email: string) {
+    const values = {
+      auth_id: id,
+      firstname: firstname,
+      surname: surname,
+      email: email
+    };
+
+    return db.one("INSERT INTO users (auth_id, firstname, surname, email) VALUES (${auth_id}, ${firstname}, ${surname}, ${email}) RETURNING *", values);
+  }
+
+  static async deleteTokenByUser(id: number) {
+    return db.none("DELETE FROM token WHERE user_id = ${id}", {id: id});
+  }
+
+  static async checkToken(token: string): Promise<any | null> {
+    return db.oneOrNone("SELECT * FROM token WHERE val = ${token}", {token: token});
+  }
+
+  static async putToken(token: string, uid: number) {
+    const values = {
+      token: token,
+      uid: uid
+    };
+
+    return db.none("INSERT INTO token (val, user_id) VALUES (${token}, ${uid})", values);
+  }
 }
 

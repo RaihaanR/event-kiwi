@@ -89,7 +89,7 @@ app.get('/file/list/:societyId', async (req, res) => {
 
 app.get('/auth/:token', async (req, res) => {
   let token = req.params.token;
-  res.send(Auth.validateBearer(token));
+  res.send(await Auth.validateBearer(token));
 });
 
 app.listen(port, () => {
