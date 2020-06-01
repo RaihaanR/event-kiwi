@@ -84,8 +84,11 @@ export default class Database {
       pattern: '%' + query + '%',
       search_term: query
     };
+    const cards = await db.any(eventSQL.searchEvents, values);
 
-    return db.any(eventSQL.searchEvents, values);
+    this.mergeSocietyDetails(cards);
+
+    return cards;
   }
 
   static async getFileName(bucketKey: string): Promise<any | null> {
