@@ -1,4 +1,4 @@
 DELETE FROM
-  token
+  "tokens"
 WHERE
-  user_id = ${id}
+  "user_id" = ${user_id}

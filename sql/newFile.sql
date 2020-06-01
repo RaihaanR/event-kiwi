@@ -1,8 +1,8 @@
 INSERT INTO
-  file (
-    display_name,
-    bucket_key,
-    society_id
+  "files" (
+    "display_name",
+    "bucket_key",
+    "society_id"
   )
 VALUES
   (

@@ -1,13 +1,13 @@
 SELECT
-  display_name,
-  bucket_key
+  "display_name",
+  "bucket_key"
 FROM
   (
     SELECT
-      file_id
+      "file_id"
     FROM
-      event_file
+      "events_files"
     WHERE
-      event_id = ${event_id}
-  ) AS event_file
-  INNER JOIN file USING (file_id)
+      "event_id" = ${event_id}
+  ) AS "events_files"
+  INNER JOIN "files" USING ("file_id")

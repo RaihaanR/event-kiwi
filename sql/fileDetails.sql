@@ -1,7 +1,7 @@
 SELECT
-  display_name,
-  bucket_key
+  "display_name",
+  "bucket_key"
 FROM
-  file
+  "files"
 WHERE
-  file_id IN (${file_ids:csv})
+  "file_id" IN (${file_ids:csv})

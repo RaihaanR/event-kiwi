@@ -1,11 +1,11 @@
 SELECT
-  event_id,
-  event_name,
-  start_datetime,
-  end_datetime,
-  location,
-  event_image_src,
-  tags
+  "event_id",
+  "event_name",
+  "start_datetime",
+  "end_datetime",
+  "location",
+  "event_image_src",
+  "tags"
 FROM
-  event
+  "events"
 ${condition:raw}

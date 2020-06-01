@@ -1,6 +1,6 @@
 SELECT
   *
 FROM
-  society
+  "societies"
 WHERE
-  society_id = ${society_id}
+  "society_id" = ${society_id}
