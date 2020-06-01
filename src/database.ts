@@ -86,7 +86,9 @@ export default class Database {
     };
     const cards = await db.any(eventSQL.searchEvents, values);
 
-    this.mergeSocietyDetails(cards);
+    for (let i = 0; i < cards.length; i++) {
+      this.mergeSocietyDetails(cards[i]);
+    }
 
     return cards;
   }
