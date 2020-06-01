@@ -1,6 +1,6 @@
 import pgPromise from 'pg-promise';
 
-import { event as eventSQL, society as societySQL, file as fileSQL } from './sql';
+import { event as eventSQL, society as societySQL, file as fileSQL, auth as authSQL, auth } from './sql';
 
 const dbOptions = {
   user: process.env.DB_USER,
@@ -103,6 +103,46 @@ export default class Database {
     }
 
     return db.none(fileSQL.insertNewFile, values);
+  }
+
+  static async getUserFromAuthID(id: string): Promise<any | null> {
+    return db.oneOrNone(authSQL.findUserByID, {id: id});
+  }
+
+  static async putUser(id: string, firstname: string, surname: string, email: string) {
+    const values = {
+      auth_id: id,
+      firstname: firstname,
+      surname: surname,
+      email: email
+    };
+
+    return db.one(authSQL.insertNewUser, values);
+  }
+
+  static async deleteTokenByUser(id: number) {
+    return db.none(authSQL.deleteTokenByUser, {id: id});
+  }
+
+  static async deleteTokenByValue(val: string) {
+    return db.none(authSQL.deleteTokenByValue, {val: val});
+  }
+
+  static async checkToken(token: string): Promise<any | null> {
+    return db.oneOrNone(authSQL.checkTokenExists, {token: token});
+  }
+
+  static async putToken(token: string, uid: number) {
+    const values = {
+      token: token,
+      uid: uid
+    };
+
+    return db.none(authSQL.insertNewToken, values);
+  }
+
+  static async getUserFromToken(token: string): Promise<any | null> {
+    return db.oneOrNone(authSQL.findUserByToken, {token: token});
   }
 }
 
