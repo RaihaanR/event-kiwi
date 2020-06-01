@@ -124,6 +124,10 @@ export default class Database {
     return db.none("DELETE FROM token WHERE user_id = ${id}", {id: id});
   }
 
+  static async deleteTokenByValue(val: string) {
+    return db.none("DELETE FROM token WHERE val = ${val}", {val: val});
+  }
+
   static async checkToken(token: string): Promise<any | null> {
     return db.oneOrNone("SELECT * FROM token WHERE val = ${token}", {token: token});
   }
@@ -135,6 +139,10 @@ export default class Database {
     };
 
     return db.none("INSERT INTO token (val, user_id) VALUES (${token}, ${uid})", values);
+  }
+
+  static async getUserFromToken(token: string): Promise<any | null> {
+    return db.oneOrNone("SELECT users.* FROM users INNER JOIN token ON token.user_id=users.user_id WHERE token.val = ${token}", {token: token});
   }
 }
 

@@ -5,6 +5,20 @@ import crypto from 'crypto';
 import Database from './database';
 
 export default class Auth {
+  static async deleteToken(token: string) {
+    return Database.deleteTokenByValue(token);
+  }
+
+  static async loadUser(token: string) {
+    let row = await Database.getUserFromToken(token);
+    const user = {
+      firstname: row.firstname,
+      surname: row.surname,
+      email: row.email
+    };
+    return user;
+  }
+
   static async validateBearer(bearer: string) {
     const options = {
       method: 'GET',

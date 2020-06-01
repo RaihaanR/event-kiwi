@@ -87,10 +87,17 @@ app.get('/file/list/:societyId', async (req, res) => {
   }
 });
 
-app.get('/auth/:token', async (req, res) => {
-  let token = req.params.token;
-  res.send(await Auth.validateBearer(token));
+app.get('/auth/new/:token', async (req, res) => {
+  res.send(await Auth.validateBearer(req.params.token));
 });
+
+app.get('/auth/end/:token', async (req, res) => {
+  res.send(await Auth.deleteToken(req.params.token));
+});
+
+app.get('/auth/whoami/:token', async (req, res) => {
+  res.send(await Auth.loadUser(req.params.token));
+})
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);
