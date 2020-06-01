@@ -15,6 +15,14 @@ const bucketName = process.env.AWS_S3_NAME;
 
 export default class Bucket {
 
+  static s3() {
+    return s3;
+  }
+
+  static bucketName() {
+    return bucketName;
+  }
+
   static async downloadByKey(req, res) {
     const key = req.params['key'];
     const entry = await Database.getFileName(key);
