@@ -1,8 +1,7 @@
 SELECT
-  tags.val
+  "tags"."val"
 FROM
-  tags
-INNER JOIN
-  interests ON tags.tag_id = interests.tag_id
+  "tags"
+  INNER JOIN "interests" USING ("tag_id")
 WHERE
-  interests.user_id = ${uid}
+  "user_id" = ${user_id}

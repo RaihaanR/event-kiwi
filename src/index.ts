@@ -160,7 +160,7 @@ app.get('/profile/all', async (req, res) => {
     }
   }
   res.send(result);
-})
+});
 
 app.listen(port, () => {
   console.log('Server started at http://localhost:' + port);

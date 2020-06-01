@@ -157,12 +157,12 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByToken, {token: token});
   }
 
-  static async listSubscriptions(uid: number): Promise<any[] | null> {
-    return db.manyOrNone(profileSQL.listSocieties, {uid: uid});
+  static async listSubscriptions(userId: number): Promise<any[] | null> {
+    return db.any(profileSQL.listSocieties, {user_id: userId});
   }
 
-  static async listInterests(uid: number): Promise<any[] | null> {
-    return db.manyOrNone(profileSQL.listInterests, {uid: uid});
+  static async listInterests(userId: number): Promise<any[] | null> {
+    return db.any(profileSQL.listInterests, {user_id: userId});
   }
 }
 
