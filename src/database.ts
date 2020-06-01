@@ -145,5 +145,9 @@ export default class Database {
   static async getUserFromToken(token: string): Promise<any | null> {
     return db.oneOrNone(authSQL.findUserByToken, {token: token});
   }
+
+  static async listSubscriptions(uid: number): Promise<any[] | null> {
+    return db.many("SELECT societies.society_image_src, societies.short_name, memberships.type FROM societies INNER JOIN memberships ON societies.society_id = memberships.society_id WHERE memberships.user_id = ${uid}", {uid: uid});
+  }
 }
 
