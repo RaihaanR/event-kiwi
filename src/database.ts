@@ -177,6 +177,14 @@ export default class Database {
   static async listInterests(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.listInterests, {user_id: userId});
   }
+  
+  static async addInterest(userId: number, tag: string): Promise<null> {
+    return db.none(profileSQL.insertNewInterest, {user_id: userId, tag: tag});
+  }
+  
+  static async removeInterest(userId: number, tag: string): Promise<null> {
+    return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
+  }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
     const values = {

@@ -166,6 +166,46 @@ app.get('/profile/interests', async (req, res) => {
   res.send(result);
 });
 
+// Does this need a return
+app.post('/profile/add/interest', async (req, res) => {
+  try {
+    const extract = Auth.extractBearer(req.headers.authorization);
+
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+
+      if (user) {
+        Database.addInterest(+user['user_id'], req.body['interest']);
+      }
+    }
+
+    res.send('Success');
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+// Does this need a return
+app.post('/profile/delete/interest', async (req, res) => {
+  try {
+    const extract = Auth.extractBearer(req.headers.authorization);
+
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+
+      if (user) {
+        Database.removeInterest(+user['user_id'], req.body['interest']);
+      }
+    }
+
+    res.send('Success');
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
 app.get('/profile/all', async (req, res) => {
   const extract = Auth.extractBearer(req.headers.authorization);
   let result = nothing;
