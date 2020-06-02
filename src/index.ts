@@ -40,22 +40,24 @@ app.get('/events/details/:eventId', async (req, res) => {
     const extract = Auth.extractBearer(req.headers.authorization);
 
     let going = -1;
+
     if (extract !== '') {
       const user = await Profile.basicInfo(extract);
+
       if (user) {
         going = await Event.goingStatus(user.user_id, eventId);
       }
     }
 
-    let details = await Database.getEventDetails(eventId);
+    const details = await Database.getEventDetails(eventId);
     const all = await Database.getAllEventCardDetails();
 
-    details.similar_events = all.filter(e =>
-      e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
-    );
     details.resources = await Database.getFilesByEvent(eventId);
     details.posts = empty;
     details.going_status = going;
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
+    );
 
     res.send(details);
   } catch (err) {

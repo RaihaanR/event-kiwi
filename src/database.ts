@@ -180,9 +180,9 @@ export default class Database {
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
     const values = {
-      event_id: eventId,
       user_id: userId,
-    }
+      event_id: eventId,
+    };
 
     return db.oneOrNone(eventSQL.goingStatus, values);
   }
