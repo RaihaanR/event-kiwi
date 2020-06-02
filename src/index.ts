@@ -222,6 +222,17 @@ app.get('/profile/all', async (req, res) => {
   }
 });
 
+app.get('/calendar', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    res.send(await Event.listCalendarView(userId));
+  }
+});
+
 app.get('/mirror/:name/:uri', (req, res) => {
   const options = {
     uri: req.params['uri'],

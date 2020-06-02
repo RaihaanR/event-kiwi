@@ -216,5 +216,9 @@ export default class Database {
 
     return db.none(eventSQL.setStatus, values);
   }
+
+  static async listEventsSubscribed(userId: number): Promise<any[] | null> {
+    return db.manyOrNone(eventSQL.calendarListing, {uid: userId});
+  }
 }
 
