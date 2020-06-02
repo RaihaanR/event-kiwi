@@ -4,9 +4,10 @@ VALUES
   (
     ${event_id}, ${user_id}, ${status}
   )
-ON CONFLICT
-  (
-    "event_id", "user_id"
-  )
-DO UPDATE SET
-  "status" = EXCLUDED.status
+  ON CONFLICT (
+    "event_id",
+    "user_id"
+  ) DO
+  UPDATE
+  SET
+    "event_registrations"."status" = ${status}
