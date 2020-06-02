@@ -134,6 +134,16 @@ export default class Database {
     return db.one(authSQL.insertNewUser, values);
   }
 
+  static async updateUser(authId: string, firstName: string, surname: string): Promise<null> {
+    const values = {
+      auth_id: authId,
+      first_name: firstName,
+      surname: surname
+    };
+
+    return db.none("UPDATE users SET firstname = ${first_name}, surname = ${surname} WHERE auth_id = ${auth_id}", values);
+  }
+
   static async deleteTokenByUser(userId: number): Promise<null> {
     return db.none(authSQL.deleteTokenByUser, {user_id: userId});
   }

@@ -44,6 +44,10 @@ export default class Auth {
 
       if (!row) {
         row = await Database.putUser(external, user.givenName, user.surname, user.mail);
+      } else {
+        if (user.givenName !== row.firstname || user.surname !== row.surname) {
+          await Database.updateUser(external, user.givenName, user.surname);
+        }
       }
 
       const token = await Auth.generateToken();
@@ -56,9 +60,9 @@ export default class Auth {
         body: {
           token: token,
           profile: {
-            firstname: row.firstname,
-            surname: row.surname,
-            email: row.email
+            firstname: user.givenName,
+            surname: user.surname,
+            email: user.mail
           }
         }
       };
