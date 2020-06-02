@@ -10,4 +10,4 @@ VALUES
   ) DO
   UPDATE
   SET
-    "event_registrations"."status" = ${status}
+    "status" = ${status}

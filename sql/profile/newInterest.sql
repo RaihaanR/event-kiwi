@@ -9,6 +9,6 @@ VALUES
   ) DO
   UPDATE
   SET
-    "tags" = array_append("tags", LOWER(${tag}))
+    "tags" = array_append("interests"."tags", LOWER(${tag}))
   WHERE
-    NOT (${tag} ILIKE ANY("tags"))
+    NOT (${tag} ILIKE ANY("interests"."tags"))
