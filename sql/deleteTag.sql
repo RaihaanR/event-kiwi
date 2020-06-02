@@ -1,5 +1,5 @@
 UPDATE
-  "events"
+  "event_tags"
 SET
   "tags" = array_remove("tags", ${tag})
 WHERE
