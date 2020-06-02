@@ -2,20 +2,20 @@ import Database from './database';
 
 export default class Profile {
 
-  static async info(uid: number) {
-    return Database.getUserFromUserID(uid);
+  static async info(userId: number) {
+    return Database.getUserFromUserID(userId);
   }
 
-  static async societies(uid: number) {
-    const societies = await Database.listSubscriptions(uid);
+  static async societies(userId: number) {
+    const societies = await Database.listSubscriptions(userId);
 
     return societies ? societies : [];
   }
 
-  static async interests(uid: number) {
-    const interests = await Database.listInterests(uid);
+  static async interests(userId: number) {
+    const interests = await Database.listInterests(userId);
 
-    return interests ? interests : [];
+    return interests ? interests['tags'] : [];
   }
 }
 

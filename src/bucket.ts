@@ -37,7 +37,7 @@ export default class Bucket {
         if (err) {
           res.send('Unable to access file');
         } else {
-          res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
+          res.setHeader('content-disposition', 'attachment; filename=' + entry['display_name']);
           res.send(data.Body);
         }
       });
@@ -47,7 +47,7 @@ export default class Bucket {
   }
 
   static async listBySociety(req, res) {
-    const society = +req.params.society;
+    const society = +req.params['society'];
 
     res.send(await Database.getFilesBySociety(society));
   }

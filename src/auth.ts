@@ -8,13 +8,15 @@ export default class Auth {
 
   static async uidFromBearer(bearer: string) {
     const token = Auth.extractBearer(bearer);
+
     if (token !== '') {
       const row = await Database.getUserFromToken(token);
 
       if (row) {
-        return row.user_id;
+        return row['user_id'];
       }
     }
+
     return -1;
   }
 
@@ -22,14 +24,18 @@ export default class Auth {
     return Database.deleteTokenByValue(token);
   }
 
+  static async deleteAllTokens(token: string) {
+    return Database.deleteAllTokensByValue(token);
+  }
+
   static async loadUser(token: string) {
     const row = await Database.getUserFromToken(token);
 
     if (row) {
       const user = {
-        firstname: row.firstname,
-        surname: row.surname,
-        email: row.email
+        firstname: row['firstname'],
+        surname: row['surname'],
+        email: row['email']
       };
 
       return user;
@@ -50,31 +56,30 @@ export default class Auth {
     try {
       const body = await request(options);
       const user = JSON.parse(body);
-      const external = user.id;
+      const external = user['id'];
 
       let row = await Database.getUserFromAuthID(external);
 
       if (!row) {
-        row = await Database.putUser(external, user.givenName, user.surname, user.mail);
+        row = await Database.putUser(external, user['givenName'], user['surname'], user['mail']);
       } else {
-        if (user.givenName !== row.firstname || user.surname !== row.surname) {
-          await Database.updateUser(external, user.givenName, user.surname);
+        if (user['givenName'] !== row['firstname'] || user['surname'] !== row['surname']) {
+          await Database.updateUser(external, user['givenName'], user['surname']);
         }
       }
 
       const token = await Auth.generateToken();
 
-      await Database.deleteTokenByUser(row.user_id);
-      await Database.putToken(token, row.user_id, bearer);
+      await Database.putToken(token, row['user_id'], bearer);
 
       const result = {
         status: 1,
         body: {
           token: token,
           profile: {
-            firstname: user.givenName,
-            surname: user.surname,
-            email: user.mail
+            firstname: user['givenName'],
+            surname: user['surname'],
+            email: user['mail']
           }
         }
       };

@@ -13,7 +13,8 @@ export const event = {
   findEventFiles: sql('../sql/event/eventFiles.sql'),
   searchEvents: sql('../sql/event/searchEvents.sql'),
   goingStatus: sql('../sql/event/goingStatus.sql'),
-  setStatus: sql('../sql/event/setStatus.sql')
+  setStatus: sql('../sql/event/setStatus.sql'),
+  calendarListing: sql('../sql/event/calendarListing.sql')
 };
 
 export const society = {
@@ -31,12 +32,14 @@ export const file = {
 
 export const auth = {
   deleteTokenByUser: sql('../sql/auth/deleteTokenUser.sql'),
+  deleteAllTokensByValue: sql('../sql/auth/deleteAllTokensValue.sql'),
   deleteTokenByValue: sql('../sql/auth/deleteTokenValue.sql'),
   checkTokenExists: sql('../sql/auth/checkToken.sql'),
   insertNewToken: sql('../sql/auth/newToken.sql'),
   insertNewUser: sql('../sql/auth/newUser.sql'),
   updateUser: sql('../sql/auth/updateUser.sql'),
   findUserByAuthId: sql('../sql/auth/userByAuthId.sql'),
+  findUserByUserId: sql('../sql/auth/userByUserId.sql'),
   findUserByToken: sql('../sql/auth/userFromToken.sql')
 };
 
