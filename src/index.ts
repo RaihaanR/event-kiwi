@@ -122,6 +122,17 @@ app.get('/file/list/:societyId', async (req, res) => {
   }
 });
 
+app.post('/auth/valid', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    res.send("success");
+  }
+});
+
 app.post('/auth/new', async (req, res) => {
   res.send(await Auth.validateBearer(req.body['token']));
 });
