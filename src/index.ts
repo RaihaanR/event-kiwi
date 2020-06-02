@@ -161,41 +161,27 @@ app.get('/profile/interests', async (req, res) => {
   }
 });
 
-app.post('/profile/add/interest', async (req, res) => {
-  try {
-    const extract = Auth.extractBearer(req.headers.authorization);
+app.post('/profile/interests/add', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-    if (extract !== '') {
-      const user = await Profile.basicInfo(extract);
-
-      if (user) {
-        Database.addInterest(+user['user_id'], req.body['interest']);
-      }
-    }
-
-    res.send('Success');
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    Database.addInterest(userId, req.body['interest']);
+    res.send("success");
   }
 });
 
-app.post('/profile/delete/interest', async (req, res) => {
-  try {
-    const extract = Auth.extractBearer(req.headers.authorization);
+app.post('/profile/interests/delete', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-    if (extract !== '') {
-      const user = await Profile.basicInfo(extract);
-
-      if (user) {
-        Database.removeInterest(+user['user_id'], req.body['interest']);
-      }
-    }
-
-    res.send('Success');
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    Database.removeInterest(userId, req.body['interest']);
+    res.send("success");
   }
 });
 
