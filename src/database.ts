@@ -177,5 +177,14 @@ export default class Database {
   static async listInterests(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.listInterests, {user_id: userId});
   }
+
+  static async goingStatus(userId: number, eventId: number): Promise<any | null> {
+    const values = {
+      event_id: eventId,
+      user_id: userId,
+    }
+
+    return db.oneOrNone("SELECT status FROM event_registrations WHERE event_id = ${event_id} AND user_id = ${user_id}", values);
+  }
 }
 
