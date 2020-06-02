@@ -33,6 +33,7 @@ export const auth = {
   checkTokenExists: sql('../sql/checkToken.sql'),
   insertNewToken: sql('../sql/newToken.sql'),
   insertNewUser: sql('../sql/newUser.sql'),
+  updateUser: sql('../updateUser.sql'),
   findUserByAuthId: sql('../sql/userByAuthId.sql'),
   findUserByToken: sql('../sql/userFromToken.sql')
 };

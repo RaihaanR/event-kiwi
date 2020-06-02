@@ -35,16 +35,26 @@ app.get('/events/cards/all', async (req, res) => {
 
 app.get('/events/details/:eventId', async (req, res) => {
   try {
-    res.send(await Database.getEventDetails(+req.params['eventId']));
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
-  }
-});
+    const extract = Auth.extractBearer(req.headers.authorization);
+    let going = -1;
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+      if (user) {
+        const result = await Database.goingStatus(user.user_id, +req.params['eventId']);
+        going = result ? result.status : 0;
+      }
+    }
 
-app.get('/events/resources/:eventId', async (req, res) => {
-  try {
-    res.send(await Database.getFilesByEvent(+req.params['eventId']));
+    let details = await Database.getEventDetails(+req.params['eventId']);
+    const all = await Database.getAllEventCardDetails();
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
+    );
+    details.resources = await Database.getFilesByEvent(+req.params['eventId']);
+    details.posts = empty;
+    details.going_status = going;
+
+    res.send(details);
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
