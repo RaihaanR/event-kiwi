@@ -31,12 +31,14 @@ export const file = {
 
 export const auth = {
   deleteTokenByUser: sql('../sql/auth/deleteTokenUser.sql'),
+  deleteAllTokensByValue: sql('../sql/auth/deleteAllTokensValue.sql'),
   deleteTokenByValue: sql('../sql/auth/deleteTokenValue.sql'),
   checkTokenExists: sql('../sql/auth/checkToken.sql'),
   insertNewToken: sql('../sql/auth/newToken.sql'),
   insertNewUser: sql('../sql/auth/newUser.sql'),
   updateUser: sql('../sql/auth/updateUser.sql'),
   findUserByAuthId: sql('../sql/auth/userByAuthId.sql'),
+  findUserByUserId: sql('../sql/auth/userByUserId.sql'),
   findUserByToken: sql('../sql/auth/userFromToken.sql')
 };
 
