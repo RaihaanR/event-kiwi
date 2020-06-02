@@ -2,8 +2,8 @@ import Database from './database';
 
 export default class Profile {
 
-  static async basicInfo(token: string) {
-    return Database.getUserFromToken(token);
+  static async info(uid: number) {
+    return Database.getUserFromUserID(uid);
   }
 
   static async societies(uid: number) {

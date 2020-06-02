@@ -123,6 +123,10 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByAuthId, {auth_id: authId});
   }
 
+  static async getUserFromUserID(userId: number): Promise<any | null> {
+    return db.oneOrNone("SELECT * FROM users WHERE user_id = ${user_id}", {user_id: userId});
+  }
+
   static async putUser(authId: string, firstName: string, surname: string, email: string): Promise<any> {
     const values = {
       auth_id: authId,

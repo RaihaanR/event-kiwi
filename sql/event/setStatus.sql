@@ -6,7 +6,7 @@ VALUES
   )
 ON CONFLICT
   (
-    event_id, user_id
+    "event_id", "user_id"
   )
 DO UPDATE SET
-  status = EXCLUDED.status
+  "status" = EXCLUDED.status
