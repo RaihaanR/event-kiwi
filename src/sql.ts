@@ -8,38 +8,39 @@ function sql(file) {
 }
 
 export const event = {
-  findEventDetails: sql('../sql/eventDetails.sql'),
-  findEventCards: sql('../sql/eventCards.sql'),
-  findEventFiles: sql('../sql/eventFiles.sql'),
-  searchEvents: sql('../sql/searchEvents.sql'),
-  goingStatus: sql('../sql/goingStatus.sql')
+  findEventDetails: sql('../sql/event/eventDetails.sql'),
+  findEventCards: sql('../sql/event/eventCards.sql'),
+  findEventFiles: sql('../sql/event/eventFiles.sql'),
+  searchEvents: sql('../sql/event/searchEvents.sql'),
+  goingStatus: sql('../sql/event/goingStatus.sql')
 };
 
 export const society = {
-  findSocietyDetails: sql('../sql/societyDetails.sql'),
-  findSocietyEventCards: sql('../sql/societyEventCards.sql'),
-  excludeEventCondition: sql('../sql/excludeEventCondition.sql'),
-  findSocietyFiles: sql('../sql/societyFiles.sql')
+  findSocietyDetails: sql('../sql/society/societyDetails.sql'),
+  findSocietyEventCards: sql('../sql/society/societyEventCards.sql'),
+  excludeEventCondition: sql('../sql/society/excludeEventCondition.sql'),
+  findSocietyFiles: sql('../sql/society/societyFiles.sql')
 };
 
 export const file = {
-  findFileDetails: sql('../sql/fileDetails.sql'),
-  findFileName: sql('../sql/fileName.sql'),
-  insertNewFile: sql('../sql/newFile.sql')
+  findFileDetails: sql('../sql/file/fileDetails.sql'),
+  findFileName: sql('../sql/file/fileName.sql'),
+  insertNewFile: sql('../sql/file/newFile.sql')
 };
 
 export const auth = {
-  deleteTokenByUser: sql('../sql/deleteTokenUser.sql'),
-  deleteTokenByValue: sql('../sql/deleteTokenValue.sql'),
-  checkTokenExists: sql('../sql/checkToken.sql'),
-  insertNewToken: sql('../sql/newToken.sql'),
-  insertNewUser: sql('../sql/newUser.sql'),
-  updateUser: sql('../updateUser.sql'),
-  findUserByAuthId: sql('../sql/userByAuthId.sql'),
-  findUserByToken: sql('../sql/userFromToken.sql')
+  deleteTokenByUser: sql('../sql/auth/deleteTokenUser.sql'),
+  deleteTokenByValue: sql('../sql/auth/deleteTokenValue.sql'),
+  checkTokenExists: sql('../sql/auth/checkToken.sql'),
+  insertNewToken: sql('../sql/auth/newToken.sql'),
+  insertNewUser: sql('../sql/auth/newUser.sql'),
+  updateUser: sql('../sql/auth/updateUser.sql'),
+  findUserByAuthId: sql('../sql/auth/userByAuthId.sql'),
+  findUserByToken: sql('../sql/auth/userFromToken.sql')
 };
 
 export const profile = {
-  listInterests: sql('../sql/listInterests.sql'),
-  listSocieties: sql('../sql/listSocieties.sql')
+  listInterests: sql('../sql/profile/listInterests.sql'),
+  listSocieties: sql('../sql/profile/listSocieties.sql')
 };
+
