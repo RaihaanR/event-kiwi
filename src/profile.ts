@@ -13,7 +13,6 @@ export default class Profile {
 
   static async interests(uid: number) {
     let interests = await Database.listInterests(uid);
-    interests = interests ? interests : [];
-    return interests.map(i => i.val);
+    return interests ? interests : [];
   }
 }
