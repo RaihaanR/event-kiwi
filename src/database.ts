@@ -184,7 +184,7 @@ export default class Database {
       user_id: userId,
     }
 
-    return db.oneOrNone("SELECT status FROM event_registrations WHERE event_id = ${event_id} AND user_id = ${user_id}", values);
+    return db.oneOrNone(eventSQL.goingStatus, values);
   }
 }
 

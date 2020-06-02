@@ -11,7 +11,8 @@ export const event = {
   findEventDetails: sql('../sql/eventDetails.sql'),
   findEventCards: sql('../sql/eventCards.sql'),
   findEventFiles: sql('../sql/eventFiles.sql'),
-  searchEvents: sql('../sql/searchEvents.sql')
+  searchEvents: sql('../sql/searchEvents.sql'),
+  goingStatus: sql('../sql/goingStatus.sql')
 };
 
 export const society = {
@@ -42,4 +43,3 @@ export const profile = {
   listInterests: sql('../sql/listInterests.sql'),
   listSocieties: sql('../sql/listSocieties.sql')
 };
-

@@ -7,6 +7,7 @@ import Bucket from './bucket';
 import Database from './database';
 import Auth from './auth';
 import Profile from './profile';
+import Event from './event';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -35,23 +36,25 @@ app.get('/events/cards/all', async (req, res) => {
 
 app.get('/events/details/:eventId', async (req, res) => {
   try {
+    const eventId = +req.params['eventId'];
     const extract = Auth.extractBearer(req.headers.authorization);
+
     let going = -1;
     if (extract !== '') {
       const user = await Profile.basicInfo(extract);
       if (user) {
-        const result = await Database.goingStatus(user.user_id, +req.params['eventId']);
-        going = result ? result.status : 0;
+        going = await Event.goingStatus(user.user_id, eventId);
       }
     }
 
-    let details = await Database.getEventDetails(+req.params['eventId']);
+    let details = await Database.getEventDetails(eventId);
     const all = await Database.getAllEventCardDetails();
+
     details.similar_events = all.filter(e =>
       e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
     );
-    details.resources = await Database.getFilesByEvent(+req.params['eventId']);
-    details.posts = empty;
+    details.resources = await Database.getFilesByEvent(eventId);
+    details.posts = [123];
     details.going_status = going;
 
     res.send(details);
