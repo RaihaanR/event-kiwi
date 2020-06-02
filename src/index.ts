@@ -166,7 +166,6 @@ app.get('/profile/interests', async (req, res) => {
   res.send(result);
 });
 
-// Does this need a return
 app.post('/profile/add/interest', async (req, res) => {
   try {
     const extract = Auth.extractBearer(req.headers.authorization);
@@ -186,7 +185,6 @@ app.post('/profile/add/interest', async (req, res) => {
   }
 });
 
-// Does this need a return
 app.post('/profile/delete/interest', async (req, res) => {
   try {
     const extract = Auth.extractBearer(req.headers.authorization);
