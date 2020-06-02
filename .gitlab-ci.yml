@@ -8,7 +8,7 @@ cache:
 
 stages:
   - build
-  - test
+  - external
   - deploy
 
 before_script:
@@ -24,18 +24,8 @@ build:
     paths:
       - dist/
 
-test basic:
-  stage: test
-  cache:
-    policy: pull
-  script:
-    - npm run test-basic
-  dependencies: []
-  except:
-    - staging
-
 test database:
-  stage: test
+  stage: external
   cache:
     policy: pull
   script:
@@ -45,7 +35,7 @@ test database:
     - staging
 
 test aws:
-  stage: test
+  stage: external
   cache:
     policy: pull
   script:
