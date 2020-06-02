@@ -6,6 +6,18 @@ import Database from './database';
 
 export default class Auth {
 
+  static async uidFromBearer(bearer: string) {
+    const token = Auth.extractBearer(bearer);
+    if (token !== '') {
+      const row = await Database.getUserFromToken(token);
+
+      if (row) {
+        return row.user_id;
+      }
+    }
+    return -1;
+  }
+
   static async deleteToken(token: string) {
     return Database.deleteTokenByValue(token);
   }
@@ -44,6 +56,10 @@ export default class Auth {
 
       if (!row) {
         row = await Database.putUser(external, user.givenName, user.surname, user.mail);
+      } else {
+        if (user.givenName !== row.firstname || user.surname !== row.surname) {
+          await Database.updateUser(external, user.givenName, user.surname);
+        }
       }
 
       const token = await Auth.generateToken();
@@ -56,9 +72,9 @@ export default class Auth {
         body: {
           token: token,
           profile: {
-            firstname: row.firstname,
-            surname: row.surname,
-            email: row.email
+            firstname: user.givenName,
+            surname: user.surname,
+            email: user.mail
           }
         }
       };

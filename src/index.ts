@@ -7,6 +7,7 @@ import Bucket from './bucket';
 import Database from './database';
 import Auth from './auth';
 import Profile from './profile';
+import Event from './event';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -21,7 +22,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('no');
 });
 
 app.get('/events/cards/all', async (req, res) => {
@@ -35,19 +36,51 @@ app.get('/events/cards/all', async (req, res) => {
 
 app.get('/events/details/:eventId', async (req, res) => {
   try {
-    res.send(await Database.getEventDetails(+req.params['eventId']));
+    const eventId = +req.params['eventId'];
+    const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+    let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
+
+    const details = await Database.getEventDetails(eventId);
+    const all = await Database.getAllEventCardDetails();
+
+    details.resources = await Database.getFilesByEvent(eventId);
+    details.posts = empty;
+    details.going_status = going;
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
+    );
+
+    res.send(details);
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
   }
 });
 
-app.get('/events/resources/:eventId', async (req, res) => {
-  try {
-    res.send(await Database.getFilesByEvent(+req.params['eventId']));
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+app.get('/events/:option/:eventId', async (req, res) => {
+  const eventId = +req.params['eventId'];
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    switch (req.params['option']) {
+      case "going": {
+        await Event.setStatus(userId, eventId, 2);
+        break;
+      }
+      case "interested": {
+        await Event.setStatus(userId, eventId, 1);
+        break;
+      }
+      case "none": {
+        await Event.setStatus(userId, eventId, 0);
+        break;
+      }
+    }
+    res.send("success");
   }
 });
 
@@ -74,21 +107,6 @@ app.get('/events/search', async (req, res) => {
     res.send('Error occurred');
     console.log(err);
   }
-});
-
-app.get('/mirror/:name/:uri', (req, res) => {
-  const options = {
-    uri: req.params['uri'],
-    encoding: null
-  };
-
-  request(options, (error, response, body) => {
-    if (error || response.statusCode !== 200) {
-      res.send('Error (' + error + ') [' + response.statusCode + ']');
-    } else {
-      Bucket.uploadFile(req.params['name'], 0, body, res);
-    }
-  });
 });
 
 app.get('/file/get/:key', (req, res) => {
@@ -122,54 +140,83 @@ app.get('/auth/whoami', async (req, res) => {
 });
 
 app.get('/profile/societies', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
-  let result = empty;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-  if (extract !== '') {
-    const user = await Profile.basicInfo(extract);
-
-    if (user) {
-      result = await Profile.societies(user.user_id);
-    }
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    res.send(await Profile.societies(userId));
   }
-
-  res.send(result);
 });
 
 app.get('/profile/interests', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
-  let result = empty;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-  if (extract !== '') {
-    const user = await Profile.basicInfo(extract);
-
-    if (user) {
-      result = await Profile.interests(user.user_id);
-    }
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    res.send(await Profile.interests(userId));
   }
+});
 
-  res.send(result);
+app.post('/profile/interests/add', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    Database.addInterest(userId, req.body['interest']);
+    res.send("success");
+  }
+});
+
+app.post('/profile/interests/delete', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    Database.removeInterest(userId, req.body['interest']);
+    res.send("success");
+  }
 });
 
 app.get('/profile/all', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
-  let result = nothing;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-  if (extract !== '') {
-    const user = await Profile.basicInfo(extract);
-
-    if (user) {
-      result = {
-        firstname: user.firstname,
-        surname: user.surname,
-        email: user.email,
-        societies: await Profile.societies(user.user_id),
-        interests: await Profile.interests(user.user_id)
-      };
+  if (userId === -1) {
+    res.status(403);
+    res.send("invalid token");
+  } else {
+    const user = await Profile.info(userId);
+    const result = {
+      firstname: user.firstname,
+      surname: user.surname,
+      email: user.email,
+      societies: await Profile.societies(userId),
+      interests: await Profile.interests(userId)
     }
+    res.send(result);
   }
+});
 
-  res.send(result);
+app.get('/mirror/:name/:uri', (req, res) => {
+  const options = {
+    uri: req.params['uri'],
+    encoding: null
+  };
+
+  request(options, (error, response, body) => {
+    if (error || response.statusCode !== 200) {
+      res.send('Error (' + error + ') [' + response.statusCode + ']');
+    } else {
+      Bucket.uploadFile(req.params['name'], 0, body, res);
+    }
+  });
 });
 
 app.listen(port, () => {
