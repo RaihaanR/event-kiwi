@@ -37,7 +37,7 @@ app.get('/events/cards/all', async (req, res) => {
 app.get('/events/details/:eventId', async (req, res) => {
   try {
     const eventId = +req.params['eventId'];
-    const userId = await Auth.uidFromBearer(req.headers.authorization);
+    const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
     let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
 
@@ -60,7 +60,7 @@ app.get('/events/details/:eventId', async (req, res) => {
 
 app.get('/events/:option/:eventId', async (req, res) => {
   const eventId = +req.params['eventId'];
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
@@ -123,13 +123,13 @@ app.get('/file/list/:societyId', async (req, res) => {
 });
 
 app.post('/auth/valid', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
-    res.send("invalid token");
+    res.send("Invalid token");
   } else {
-    res.send("success");
+    res.send("Success");
   }
 });
 
@@ -138,27 +138,27 @@ app.post('/auth/new', async (req, res) => {
 });
 
 app.get('/auth/end', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
+  const extract = Auth.extractBearer(req.headers['authorization']);
   await Auth.deleteToken(extract)
 
   res.send(nothing);
 });
 
 app.get('/auth/end/all', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
+  const extract = Auth.extractBearer(req.headers['authorization']);
   await Auth.deleteAllTokens(extract)
 
   res.send(nothing);
 });
 
 app.get('/auth/whoami', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers.authorization);
+  const extract = Auth.extractBearer(req.headers['authorization']);
 
   res.send(await Auth.loadUser(extract));
 });
 
 app.get('/profile/societies', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
@@ -169,7 +169,7 @@ app.get('/profile/societies', async (req, res) => {
 });
 
 app.get('/profile/interests', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
@@ -180,7 +180,7 @@ app.get('/profile/interests', async (req, res) => {
 });
 
 app.post('/profile/interests/add', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
@@ -192,7 +192,7 @@ app.post('/profile/interests/add', async (req, res) => {
 });
 
 app.post('/profile/interests/delete', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
@@ -204,7 +204,7 @@ app.post('/profile/interests/delete', async (req, res) => {
 });
 
 app.get('/profile/all', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
