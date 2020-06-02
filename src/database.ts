@@ -41,6 +41,10 @@ export default class Database {
     return cards;
   }
 
+  static async getSocietyColour(societyId: number): Promise<any | null> {
+    return db.oneOrNone("SELECT colour FROM societies WHERE society_id = ${societyId}", {societyId: societyId});
+  }
+
   static async getAllEventCardDetails(): Promise<any[]> {
     const cards = await db.any(eventSQL.findEventCards);
 
@@ -124,7 +128,7 @@ export default class Database {
   }
 
   static async getUserFromUserID(userId: number): Promise<any | null> {
-    return db.oneOrNone("SELECT * FROM users WHERE user_id = ${user_id}", {user_id: userId});
+    return db.oneOrNone(authSQL.findUserByUserId, {user_id: userId});
   }
 
   static async putUser(authId: string, firstName: string, surname: string, email: string): Promise<any> {
@@ -156,6 +160,10 @@ export default class Database {
     return db.none(authSQL.deleteTokenByValue, {token: token});
   }
 
+  static async deleteAllTokensByValue(token: string): Promise<null> {
+    return db.none(authSQL.deleteAllTokensByValue, {token: token});
+  }
+
   static async checkToken(token: string): Promise<any | null> {
     return db.oneOrNone(authSQL.checkTokenExists, {token: token});
   }
@@ -181,11 +189,11 @@ export default class Database {
   static async listInterests(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.listInterests, {user_id: userId});
   }
-  
+
   static async addInterest(userId: number, tag: string): Promise<null> {
     return db.none(profileSQL.insertNewInterest, {user_id: userId, tag: tag});
   }
-  
+
   static async removeInterest(userId: number, tag: string): Promise<null> {
     return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
   }
