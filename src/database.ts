@@ -160,12 +160,12 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByToken, {token: token});
   }
 
-  static async listSubscriptions(userId: number): Promise<any[] | null> {
+  static async listSubscriptions(userId: number): Promise<any[]> {
     return db.any(profileSQL.listSocieties, {user_id: userId});
   }
 
-  static async listInterests(userId: number): Promise<any[] | null> {
-    return db.any(profileSQL.listInterests, {user_id: userId});
+  static async listInterests(userId: number): Promise<any | null> {
+    return db.oneOrNone(profileSQL.listInterests, {user_id: userId});
   }
 }
 
