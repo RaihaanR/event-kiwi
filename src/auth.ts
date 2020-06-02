@@ -6,6 +6,18 @@ import Database from './database';
 
 export default class Auth {
 
+  static async uidFromBearer(bearer: string) {
+    const token = Auth.extractBearer(bearer);
+    if (token !== '') {
+      const row = await Database.getUserFromToken(token);
+
+      if (row) {
+        return row.user_id;
+      }
+    }
+    return -1;
+  }
+
   static async deleteToken(token: string) {
     return Database.deleteTokenByValue(token);
   }

@@ -12,7 +12,8 @@ export const event = {
   findEventCards: sql('../sql/event/eventCards.sql'),
   findEventFiles: sql('../sql/event/eventFiles.sql'),
   searchEvents: sql('../sql/event/searchEvents.sql'),
-  goingStatus: sql('../sql/event/goingStatus.sql')
+  goingStatus: sql('../sql/event/goingStatus.sql'),
+  setStatus: sql('../sql/event/setStatus.sql')
 };
 
 export const society = {
@@ -41,6 +42,8 @@ export const auth = {
 
 export const profile = {
   listInterests: sql('../sql/profile/listInterests.sql'),
-  listSocieties: sql('../sql/profile/listSocieties.sql')
+  listSocieties: sql('../sql/profile/listSocieties.sql'),
+  insertNewInterest: sql('../sql/profile/newInterest.sql'),
+  deleteInterest: sql('../sql/profile/deleteInterest.sql')
 };
 

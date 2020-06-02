@@ -123,6 +123,10 @@ export default class Database {
     return db.oneOrNone(authSQL.findUserByAuthId, {auth_id: authId});
   }
 
+  static async getUserFromUserID(userId: number): Promise<any | null> {
+    return db.oneOrNone("SELECT * FROM users WHERE user_id = ${user_id}", {user_id: userId});
+  }
+
   static async putUser(authId: string, firstName: string, surname: string, email: string): Promise<any> {
     const values = {
       auth_id: authId,
@@ -141,7 +145,7 @@ export default class Database {
       surname: surname
     };
 
-    return db.none("UPDATE users SET firstname = ${first_name}, surname = ${surname} WHERE auth_id = ${auth_id}", values);
+    return db.none(authSQL.updateUser, values);
   }
 
   static async deleteTokenByUser(userId: number): Promise<null> {
@@ -177,6 +181,14 @@ export default class Database {
   static async listInterests(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.listInterests, {user_id: userId});
   }
+  
+  static async addInterest(userId: number, tag: string): Promise<null> {
+    return db.none(profileSQL.insertNewInterest, {user_id: userId, tag: tag});
+  }
+  
+  static async removeInterest(userId: number, tag: string): Promise<null> {
+    return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
+  }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
     const values = {
@@ -185,6 +197,16 @@ export default class Database {
     };
 
     return db.oneOrNone(eventSQL.goingStatus, values);
+  }
+
+  static async setStatus(userId: number, eventId: number, status: number): Promise<null> {
+    const values = {
+      user_id: userId,
+      event_id: eventId,
+      status: status
+    };
+
+    return db.none(eventSQL.setStatus, values);
   }
 }
 

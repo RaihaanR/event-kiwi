@@ -7,5 +7,9 @@ export default class Event {
 
     return result ? result['status'] : 0;
   }
+
+  static async setStatus(userId: number, eventId: number, status: number) {
+    return await Database.setStatus(userId, eventId, status);
+  }
 }
 
