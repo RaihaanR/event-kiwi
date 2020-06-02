@@ -22,6 +22,10 @@ export default class Auth {
     return Database.deleteTokenByValue(token);
   }
 
+  static async deleteAllTokens(token: string) {
+    return Database.deleteAllTokensByValue(token);
+  }
+
   static async loadUser(token: string) {
     const row = await Database.getUserFromToken(token);
 
@@ -64,7 +68,6 @@ export default class Auth {
 
       const token = await Auth.generateToken();
 
-      await Database.deleteTokenByUser(row.user_id);
       await Database.putToken(token, row.user_id, bearer);
 
       const result = {

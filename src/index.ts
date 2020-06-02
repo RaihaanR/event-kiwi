@@ -133,6 +133,13 @@ app.get('/auth/end', async (req, res) => {
   res.send(nothing);
 });
 
+app.get('/auth/end/all', async (req, res) => {
+  const extract = Auth.extractBearer(req.headers.authorization);
+  await Auth.deleteAllTokens(extract)
+
+  res.send(nothing);
+});
+
 app.get('/auth/whoami', async (req, res) => {
   const extract = Auth.extractBearer(req.headers.authorization);
 
