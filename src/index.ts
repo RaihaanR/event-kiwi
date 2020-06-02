@@ -54,7 +54,7 @@ app.get('/events/details/:eventId', async (req, res) => {
       e.id !== details.id && e.tags.some(t => event['tags'].includes(t))
     );
     details.resources = await Database.getFilesByEvent(eventId);
-    details.posts = [123];
+    details.posts = empty;
     details.going_status = going;
 
     res.send(details);
