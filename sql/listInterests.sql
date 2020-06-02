@@ -1,6 +1,6 @@
 SELECT
-  "interests"
+  "tags"
 FROM
-  "users"
+  "interests"
 WHERE
   "user_id" = ${user_id}
