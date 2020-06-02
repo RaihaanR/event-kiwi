@@ -161,6 +161,44 @@ app.get('/profile/interests', async (req, res) => {
   }
 });
 
+app.post('/profile/add/interest', async (req, res) => {
+  try {
+    const extract = Auth.extractBearer(req.headers.authorization);
+
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+
+      if (user) {
+        Database.addInterest(+user['user_id'], req.body['interest']);
+      }
+    }
+
+    res.send('Success');
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.post('/profile/delete/interest', async (req, res) => {
+  try {
+    const extract = Auth.extractBearer(req.headers.authorization);
+
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+
+      if (user) {
+        Database.removeInterest(+user['user_id'], req.body['interest']);
+      }
+    }
+
+    res.send('Success');
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
 app.get('/profile/all', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
