@@ -66,6 +66,39 @@ app.get('/events/details/:eventId', async (req, res) => {
   }
 });
 
+app.get('/events/:option/:eventId', async (req, res) => {
+  try {
+    const eventId = +req.params['eventId'];
+    const extract = Auth.extractBearer(req.headers.authorization);
+
+    if (extract !== '') {
+      const user = await Profile.basicInfo(extract);
+
+      if (user) {
+        switch (req.params['option']) {
+          case "going": {
+            await Event.setStatus(user.user_id, eventId, 2);
+            break;
+          }
+          case "interested": {
+            await Event.setStatus(user.user_id, eventId, 1);
+            break;
+          }
+          case "none": {
+            await Event.setStatus(user.user_id, eventId, 0);
+            break;
+          }
+        }
+      }
+    }
+
+    res.send("");
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
 app.get('/events/suggested/:eventId', async (req, res) => {
   try {
     const event = await Database.getEventDetails(+req.params['eventId']);

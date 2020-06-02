@@ -141,7 +141,7 @@ export default class Database {
       surname: surname
     };
 
-    return db.none("UPDATE users SET firstname = ${first_name}, surname = ${surname} WHERE auth_id = ${auth_id}", values);
+    return db.none(authSQL.updateUser, values);
   }
 
   static async deleteTokenByUser(userId: number): Promise<null> {
@@ -185,6 +185,16 @@ export default class Database {
     };
 
     return db.oneOrNone(eventSQL.goingStatus, values);
+  }
+
+  static async setStatus(userId: number, eventId: number, status: number): Promise<null> {
+    const values = {
+      user_id: userId,
+      event_id: eventId,
+      status: status
+    };
+
+    return db.none(eventSQL.setStatus, values);
   }
 }
 
