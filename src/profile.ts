@@ -15,7 +15,7 @@ export default class Profile {
   static async interests(uid: number) {
     const interests = await Database.listInterests(uid);
 
-    return interests ? interests : [];
+    return interests ? interests.tags : [];
   }
 }
 
