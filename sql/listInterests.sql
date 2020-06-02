@@ -1,7 +1,6 @@
 SELECT
-  "tags"."val"
+  "interests"
 FROM
-  "tags"
-  INNER JOIN "interests" USING ("tag_id")
+  "users"
 WHERE
   "user_id" = ${user_id}
