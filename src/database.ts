@@ -41,10 +41,6 @@ export default class Database {
     return cards;
   }
 
-  static async getSocietyColour(societyId: number): Promise<any | null> {
-    return db.oneOrNone("SELECT colour FROM societies WHERE society_id = ${societyId}", {societyId: societyId});
-  }
-
   static async getAllEventCardDetails(): Promise<any[]> {
     const cards = await db.any(eventSQL.findEventCards);
 
@@ -232,6 +228,10 @@ export default class Database {
     };
 
     return db.manyOrNone("SELECT * FROM posts WHERE event_id = ${eid} AND post_id > ${start}", values);
+  }
+
+  static async getTestDetails(testId: number): Promise<any | null> {
+    return db.oneOrNone("SELECT * FROM tests WHERE test_id = ${tid}", {tid: testId});
   }
 }
 
