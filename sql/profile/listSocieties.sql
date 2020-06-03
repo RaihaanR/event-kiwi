@@ -6,4 +6,5 @@ FROM
   "societies"
   INNER JOIN "memberships" USING ("society_id")
 WHERE
-  "user_id" = ${user_id}
+  "user_id" = ${user_id} AND
+  "memberships"."type" > 0
