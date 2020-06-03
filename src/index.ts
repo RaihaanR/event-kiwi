@@ -8,7 +8,6 @@ import Database from './database';
 import Auth from './auth';
 import Profile from './profile';
 import Event from './event';
-import { cursorTo } from 'readline';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -46,7 +45,6 @@ app.get('/events/details/:eventId', async (req, res) => {
     const all = await Database.getAllEventCardDetails();
 
     details['resources'] = await Database.getFilesByEvent(eventId);
-    details['posts'] = empty;
     details['going_status'] = going;
     details['similar_events'] = all.filter(e =>
       e['id'] !== details['id'] && e['tags'].some(t => event['tags'].includes(t))
