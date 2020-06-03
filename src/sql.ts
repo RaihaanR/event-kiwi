@@ -21,7 +21,8 @@ export const society = {
   findSocietyDetails: sql('../sql/society/societyDetails.sql'),
   findSocietyEventCards: sql('../sql/society/societyEventCards.sql'),
   excludeEventCondition: sql('../sql/society/excludeEventCondition.sql'),
-  findSocietyFiles: sql('../sql/society/societyFiles.sql')
+  findSocietyFiles: sql('../sql/society/societyFiles.sql'),
+  searchSocieties: sql('../sql/society/searchSocieties.sql')
 };
 
 export const file = {
