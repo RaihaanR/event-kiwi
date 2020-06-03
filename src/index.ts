@@ -25,7 +25,6 @@ app.get('/', (req, res) => {
   res.send('No access');
 });
 
-
 app.get('/societies/:option/:societyId', async (req, res) => {
   const societyId = +req.params['societyId'];
   const userId = await Auth.uidFromBearer(req.headers['authorization']);
