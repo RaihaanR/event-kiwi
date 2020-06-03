@@ -125,6 +125,15 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
+app.get('/societies/search', async (req, res) => {
+  try {
+    res.send(await Database.searchSocieties(req.query['q']));
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
 app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res);
 });
