@@ -80,9 +80,13 @@ export default class Database {
   }
 
   static async searchEvents(query: any): Promise<any[]> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .trim();
+
     const values = {
-      terms: query.replace(/\s+/g, ' ').split(' ').map(t => '%' + t + '%'),
-      search_term: query.replace(/\s+/g, '|')
+      terms: q.split(' ').map(t => '%' + t + '%'),
+      search_term: q.replace(/\s/gi, '|')
     };
     values['length'] = values['terms'].length;
     const cards = await db.any(eventSQL.searchEvents, values);
