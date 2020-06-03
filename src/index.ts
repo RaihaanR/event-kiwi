@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
   res.send('No access');
 });
 
+<<<<<<< HEAD
 app.get('/societies/search', async (req, res) => {
   const term = String(req.query.q).toLowerCase();
   const userId = await Auth.uidFromBearer(req.headers.authorization);
@@ -45,6 +46,8 @@ app.get('/societies/search', async (req, res) => {
   }
 });
 
+=======
+>>>>>>> f375afe72fe6b224eeba3be1d08df06d2aa37023
 app.get('/societies/:option/:societyId', async (req, res) => {
   const societyId = +req.params.societyId;
   const userId = await Auth.uidFromBearer(req.headers.authorization);
