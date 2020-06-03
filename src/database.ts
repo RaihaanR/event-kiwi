@@ -217,6 +217,16 @@ export default class Database {
     return db.none(eventSQL.setStatus, values);
   }
 
+  static async setSocietyStatus(userId: number, societyId: number, type: number): Promise<null> {
+    const values = {
+      user_id: userId,
+      society_id: societyId,
+      type: type
+    };
+
+    return db.none(profileSQL.setSocietyStatus, values);
+  }
+
   static async listEventsSubscribed(userId: number): Promise<any[] | null> {
     return db.manyOrNone(eventSQL.calendarListing, {uid: userId});
   }
