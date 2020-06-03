@@ -11,4 +11,4 @@ VALUES
   SET
     "tags" = array_append("interests"."tags", LOWER(${tag}))
   WHERE
-    NOT ${tag} ILIKE ANY("interests"."tags"))
+    NOT ${tag} ILIKE ANY("interests"."tags")

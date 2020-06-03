@@ -86,6 +86,7 @@ export default class Database {
 
     const values = {
       terms: q.split(' ').map(t => '%' + t + '%'),
+      pattern: '%' + q.replace(/\s/gi, '%') + '%',
       search_term: q.replace(/\s/gi, '|')
     };
     values['length'] = values['terms'].length;
