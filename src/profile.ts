@@ -17,5 +17,9 @@ export default class Profile {
 
     return interests ? interests['tags'] : [];
   }
+
+  static async setSocietyStatus(userId: number, societyId: number, status: number) {
+    return await Database.setSocietyStatus(userId, societyId, status);
+  }
 }
 
