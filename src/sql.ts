@@ -14,14 +14,16 @@ export const event = {
   searchEvents: sql('../sql/event/searchEvents.sql'),
   goingStatus: sql('../sql/event/goingStatus.sql'),
   setStatus: sql('../sql/event/setStatus.sql'),
-  calendarListing: sql('../sql/event/calendarListing.sql')
+  calendarListing: sql('../sql/event/calendarListing.sql'),
+  postListing: sql('../sql/event/postListing.sql')
 };
 
 export const society = {
   findSocietyDetails: sql('../sql/society/societyDetails.sql'),
   findSocietyEventCards: sql('../sql/society/societyEventCards.sql'),
   excludeEventCondition: sql('../sql/society/excludeEventCondition.sql'),
-  findSocietyFiles: sql('../sql/society/societyFiles.sql')
+  findSocietyFiles: sql('../sql/society/societyFiles.sql'),
+  searchSocieties: sql('../sql/society/searchSocieties.sql')
 };
 
 export const file = {

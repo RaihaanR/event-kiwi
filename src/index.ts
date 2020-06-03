@@ -45,7 +45,6 @@ app.get('/events/details/:eventId', async (req, res) => {
     const all = await Database.getAllEventCardDetails();
 
     details['resources'] = await Database.getFilesByEvent(eventId);
-    details['posts'] = empty;
     details['going_status'] = going;
     details['similar_events'] = all.filter(e =>
       e['id'] !== details['id'] && e['tags'].some(t => event['tags'].includes(t))
@@ -85,6 +84,21 @@ app.get('/events/:option/:eventId', async (req, res) => {
   }
 });
 
+app.get('/events/posts/:eventId/:start', async (req, res) => {
+  const eventId = +req.params['eventId'];
+  const start = +req.params['start'];
+
+  const posts = await Event.getPosts(eventId, start);
+  const max = posts.map(e => e.id).reduce((acc, cur) => acc > cur ? acc : cur, 0);
+
+  const result = {
+    posts: posts,
+    last: max
+  };
+
+  res.send(result);
+});
+
 app.get('/events/suggested/:eventId', async (req, res) => {
   try {
     const event = await Database.getEventDetails(+req.params['eventId']);
@@ -103,6 +117,15 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 app.get('/events/search', async (req, res) => {
   try {
     res.send(await Database.searchEvents(req.query['q']));
+  } catch (err) {
+    res.send('Error occurred');
+    console.log(err);
+  }
+});
+
+app.get('/societies/search', async (req, res) => {
+  try {
+    res.send(await Database.searchSocieties(req.query['q']));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);

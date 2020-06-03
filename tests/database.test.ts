@@ -1,19 +1,22 @@
 import { expect } from 'chai';
 import Database from '../src/database';
 
-describe('societies', async function() {
-  it('society colour should be \'272727\'', async function() {
-    const data = await Database.getSocietyColour(0);
+describe('database', async () => {
+  it('test access (id = 1) should have correct \'val1\'', async () => {
+    const data = await Database.getTestDetails(1);
 
-    expect(data.colour).equal('272727');
+    expect(data.val1).equal("hello world");
+  });
+
+  it('test access (id = 2) should have correct \'val2\'', async () => {
+    const data = await Database.getTestDetails(2);
+
+    expect(data.val2).equal(123);
+  });
+
+  it('test access (id = 3) should be invalid', async () => {
+    const data = await Database.getTestDetails(3);
+
+    expect(data).equal(null);
   });
 });
-
-describe('files', async function() {
-  it('file name should be \'test.txt\'', async function() {
-    const data = await Database.getFileName("_test");
-
-    expect(data.display_name).equal('test.txt');
-  });
-});
-
