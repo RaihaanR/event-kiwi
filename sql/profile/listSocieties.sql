@@ -1,4 +1,5 @@
 SELECT
+  "societies"."society_id",
   "societies"."society_image_src",
   "societies"."short_name",
   "memberships"."type"

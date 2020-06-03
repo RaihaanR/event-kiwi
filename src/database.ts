@@ -80,10 +80,15 @@ export default class Database {
   }
 
   static async searchEvents(query: any): Promise<any[]> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .trim();
+
     const values = {
-      pattern: '%' + query + '%',
-      search_term: query
+      terms: q.split(' ').map(t => '%' + t + '%'),
+      search_term: q.replace(/\s/gi, '|')
     };
+    values['length'] = values['terms'].length;
     const cards = await db.any(eventSQL.searchEvents, values);
 
     for (let i = 0; i < cards.length; i++) {
@@ -93,8 +98,8 @@ export default class Database {
     return cards;
   }
 
-  static async searchSocieties(query: any): Promise<any[]> {
-    return db.any(societySQL.searchSocieties, {pattern: '%' + query + '%'});
+  static async searchSocieties(): Promise<any[]> {
+    return db.any(societySQL.searchSocieties);
   }
 
   static async getFileName(bucketKey: string): Promise<any | null> {

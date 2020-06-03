@@ -25,16 +25,35 @@ app.get('/', (req, res) => {
   res.send('No access');
 });
 
-
-app.get('/societies/:option/:societyId', async (req, res) => {
-  const societyId = +req.params['societyId'];
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+app.get('/societies/search', async (req, res) => {
+  const term = String(req.query.q).toLowerCase();
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send('Invalid token');
   } else {
-    switch (req.params['option']) {
+    const following = (await Profile.societies(userId)).map(s => s.society_id);
+    const societies = await Database.searchSocieties();
+    const result = societies.filter(s =>
+      s.society_name.toLowerCase().includes(term) || s.short_name.toLowerCase().includes(term)
+    ).map(s => {
+      s.following = following.includes(s.society_id) ? 1 : 0;
+      return s;
+    });
+    res.send(result);
+  }
+});
+
+app.get('/societies/:option/:societyId', async (req, res) => {
+  const societyId = +req.params.societyId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send('Invalid token');
+  } else {
+    switch (req.params.option) {
       case 'follow': {
         await Profile.setSocietyStatus(userId, societyId, 1);
         break;
@@ -60,19 +79,20 @@ app.get('/events/cards/all', async (req, res) => {
 
 app.get('/events/details/:eventId', async (req, res) => {
   try {
-    const eventId = +req.params['eventId'];
-    const userId = await Auth.uidFromBearer(req.headers['authorization']);
+    const eventId = +req.params.eventId;
+    const userId = await Auth.uidFromBearer(req.headers.authorization);
 
     let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
 
     const details = await Database.getEventDetails(eventId);
     const all = await Database.getAllEventCardDetails();
 
-    details['resources'] = await Database.getFilesByEvent(eventId);
-    details['going_status'] = going;
-    details['similar_events'] = all.filter(e =>
-      e['id'] !== details['id'] && e['tags'].some(t => event['tags'].includes(t))
+    details.resources = await Database.getFilesByEvent(eventId);
+    details.going_status = going;
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
     );
+    details.posts = empty;
 
     res.send(details);
   } catch (err) {
@@ -82,14 +102,14 @@ app.get('/events/details/:eventId', async (req, res) => {
 });
 
 app.get('/events/:option/:eventId', async (req, res) => {
-  const eventId = +req.params['eventId'];
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send('Invalid token');
   } else {
-    switch (req.params['option']) {
+    switch (req.params.option) {
       case 'going': {
         await Event.setStatus(userId, eventId, 2);
         break;
@@ -109,8 +129,8 @@ app.get('/events/:option/:eventId', async (req, res) => {
 });
 
 app.get('/events/posts/:eventId/:start', async (req, res) => {
-  const eventId = +req.params['eventId'];
-  const start = +req.params['start'];
+  const eventId = +req.params.eventId;
+  const start = +req.params.start;
 
   const posts = await Event.getPosts(eventId, start);
   const max = posts.map(e => e.id).reduce((acc, cur) => acc > cur ? acc : cur, 0);
@@ -125,10 +145,10 @@ app.get('/events/posts/:eventId/:start', async (req, res) => {
 
 app.get('/events/suggested/:eventId', async (req, res) => {
   try {
-    const event = await Database.getEventDetails(+req.params['eventId']);
+    const event = await Database.getEventDetails(+req.params.eventId);
     const all = await Database.getAllEventCardDetails();
     const filtered = all.filter(e =>
-      e['id'] !== event['id'] && e['tags'].some(t => event['tags'].includes(t))
+      e.id !== event.id && e.tags.some(t => event.tags.includes(t))
     );
 
     res.send(filtered);
@@ -140,16 +160,7 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 
 app.get('/events/search', async (req, res) => {
   try {
-    res.send(await Database.searchEvents(req.query['q']));
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
-  }
-});
-
-app.get('/societies/search', async (req, res) => {
-  try {
-    res.send(await Database.searchSocieties(req.query['q']));
+    res.send(await Database.searchEvents(req.query.q));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -162,7 +173,7 @@ app.get('/file/get/:key', (req, res) => {
 
 app.get('/file/list/:societyId', async (req, res) => {
   try {
-    res.send(await Database.getFilesBySociety(+req.params['societyId']));
+    res.send(await Database.getFilesBySociety(+req.params.societyId));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -170,7 +181,7 @@ app.get('/file/list/:societyId', async (req, res) => {
 });
 
 app.post('/auth/valid', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
@@ -181,31 +192,31 @@ app.post('/auth/valid', async (req, res) => {
 });
 
 app.post('/auth/new', async (req, res) => {
-  res.send(await Auth.validateBearer(req.body['token']));
+  res.send(await Auth.validateBearer(req.body.token));
 });
 
 app.get('/auth/end', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers['authorization']);
+  const extract = Auth.extractBearer(req.headers.authorization);
   await Auth.deleteToken(extract)
 
   res.send(nothing);
 });
 
 app.get('/auth/end/all', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers['authorization']);
+  const extract = Auth.extractBearer(req.headers.authorization);
   await Auth.deleteAllTokens(extract)
 
   res.send(nothing);
 });
 
 app.get('/auth/whoami', async (req, res) => {
-  const extract = Auth.extractBearer(req.headers['authorization']);
+  const extract = Auth.extractBearer(req.headers.authorization);
 
   res.send(await Auth.loadUser(extract));
 });
 
 app.get('/profile/societies', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
@@ -216,7 +227,7 @@ app.get('/profile/societies', async (req, res) => {
 });
 
 app.get('/profile/interests', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
@@ -227,31 +238,31 @@ app.get('/profile/interests', async (req, res) => {
 });
 
 app.post('/profile/interests/add', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send('Invalid token');
   } else {
-    Database.addInterest(userId, req.body['interest']);
+    Database.addInterest(userId, req.body.interest);
     res.send('Success');
   }
 });
 
 app.post('/profile/interests/delete', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send('Invalid token');
   } else {
-    Database.removeInterest(userId, req.body['interest']);
+    Database.removeInterest(userId, req.body.interest);
     res.send('Success');
   }
 });
 
 app.get('/profile/all', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
@@ -259,9 +270,9 @@ app.get('/profile/all', async (req, res) => {
   } else {
     const user = await Profile.info(userId);
     const result = {
-      firstname: user['firstname'],
-      surname: user['surname'],
-      email: user['email'],
+      firstname: user.firstname,
+      surname: user.surname,
+      email: user.email,
       societies: await Profile.societies(userId),
       interests: await Profile.interests(userId)
     }
@@ -271,11 +282,11 @@ app.get('/profile/all', async (req, res) => {
 });
 
 app.get('/calendar', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
-    res.send("invalid token");
+    res.send("Invalid token");
   } else {
     res.send(await Event.listCalendarView(userId));
   }
@@ -283,15 +294,15 @@ app.get('/calendar', async (req, res) => {
 
 app.get('/mirror/:name/:uri', (req, res) => {
   const options = {
-    uri: req.params['uri'],
+    uri: req.params.uri,
     encoding: null
   };
 
   request(options, (error, response, body) => {
     if (error || response.statusCode !== 200) {
-      res.send('Error (' + error + ') [' + response.statusCode + ']');
+      res.send('Error (' + error + ') . + response.statusCode + ');
     } else {
-      Bucket.uploadFile(req.params['name'], 0, body, res);
+      Bucket.uploadFile(req.params.name, 0, body, res);
     }
   });
 });
