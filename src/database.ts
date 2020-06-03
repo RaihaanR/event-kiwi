@@ -220,5 +220,14 @@ export default class Database {
   static async listEventsSubscribed(userId: number): Promise<any[] | null> {
     return db.manyOrNone(eventSQL.calendarListing, {uid: userId});
   }
+
+  static async getEventPosts(eventId: number, start: number): Promise<any[] | null> {
+    const values = {
+      eid: eventId,
+      start: start
+    };
+
+    return db.manyOrNone("SELECT * FROM posts WHERE event_id = ${eid} AND post_id > ${start}", values);
+  }
 }
 

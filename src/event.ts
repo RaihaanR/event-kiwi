@@ -2,6 +2,12 @@ import Database from './database';
 
 export default class Event {
 
+  static async getPosts(eventId: number, start: number) {
+    const result = await Database.getEventPosts(eventId, start);
+
+    return result ? result : [];
+  }
+
   static async goingStatus(userId: number, eventId: number) {
     const result = await Database.goingStatus(userId, eventId);
 

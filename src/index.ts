@@ -8,6 +8,7 @@ import Database from './database';
 import Auth from './auth';
 import Profile from './profile';
 import Event from './event';
+import { cursorTo } from 'readline';
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -83,6 +84,21 @@ app.get('/events/:option/:eventId', async (req, res) => {
 
     res.send('Success');
   }
+});
+
+app.get('/events/posts/:eventId/:start', async (req, res) => {
+  const eventId = +req.params['eventId'];
+  const start = +req.params['start'];
+
+  const posts = await Event.getPosts(eventId, start);
+  const max = posts.map(e => e.post_id).reduce((acc, cur) => acc > cur ? acc : cur, 0);
+
+  const result = {
+    posts: posts,
+    last: max
+  };
+
+  res.send(result);
 });
 
 app.get('/events/suggested/:eventId', async (req, res) => {
