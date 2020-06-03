@@ -19,34 +19,13 @@ WHERE
 ORDER BY
   (
     (
-      CASE
-        WHEN
-          "event_name" ILIKE ${pattern}
-        THEN
-          1
-        ELSE
-          0
-      END
+      CASE WHEN "event_name" ILIKE ${pattern} THEN 1 ELSE 0 END
     ) +
     (
-      CASE
-        WHEN
-          "society_name" ILIKE ${pattern}
-        THEN
-          1
-        ELSE
-          0
-      END
+      CASE WHEN "society_name" ILIKE ${pattern} THEN 1 ELSE 0 END
     ) +
     (
-      CASE
-        WHEN
-          "short_name" ILIKE ${pattern}
-        THEN
-          1
-        ELSE
-          0
-      END
+      CASE WHEN "short_name" ILIKE ${pattern} THEN 1 ELSE 0 END
     ) +
     ts_rank_cd(to_tsvector(array_to_string("tags", ' ')), to_tsquery(LOWER(${search_term})))
   ) DESC
