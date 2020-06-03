@@ -81,9 +81,10 @@ export default class Database {
 
   static async searchEvents(query: any): Promise<any[]> {
     const values = {
-      terms: query.split(' ').map(t => '%' + t + '%'),
-      search_term: query.replace(/\s/g, '|')
+      terms: query.replace(/\s+/g, ' ').split(' ').map(t => '%' + t + '%'),
+      search_term: query.replace(/\s+/g, '|')
     };
+    values['length'] = values['terms'].length;
     const cards = await db.any(eventSQL.searchEvents, values);
 
     for (let i = 0; i < cards.length; i++) {

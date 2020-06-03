@@ -282,11 +282,11 @@ app.get('/profile/all', async (req, res) => {
 });
 
 app.get('/calendar', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
 
   if (userId === -1) {
     res.status(403);
-    res.send("invalid token");
+    res.send("Invalid token");
   } else {
     res.send(await Event.listCalendarView(userId));
   }
