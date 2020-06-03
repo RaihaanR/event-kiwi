@@ -91,7 +91,7 @@ app.get('/events/posts/:eventId/:start', async (req, res) => {
   const start = +req.params['start'];
 
   const posts = await Event.getPosts(eventId, start);
-  const max = posts.map(e => e.post_id).reduce((acc, cur) => acc > cur ? acc : cur, 0);
+  const max = posts.map(e => e.id).reduce((acc, cur) => acc > cur ? acc : cur, 0);
 
   const result = {
     posts: posts,

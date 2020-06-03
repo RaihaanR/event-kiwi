@@ -227,7 +227,7 @@ export default class Database {
       start: start
     };
 
-    return db.manyOrNone("SELECT * FROM posts WHERE event_id = ${eid} AND post_id > ${start}", values);
+    return db.manyOrNone(eventSQL.postListing, values);
   }
 
   static async getTestDetails(testId: number): Promise<any | null> {

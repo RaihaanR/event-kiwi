@@ -14,7 +14,8 @@ export const event = {
   searchEvents: sql('../sql/event/searchEvents.sql'),
   goingStatus: sql('../sql/event/goingStatus.sql'),
   setStatus: sql('../sql/event/setStatus.sql'),
-  calendarListing: sql('../sql/event/calendarListing.sql')
+  calendarListing: sql('../sql/event/calendarListing.sql'),
+  postListing: sql('../sql/event/postListing.sql')
 };
 
 export const society = {

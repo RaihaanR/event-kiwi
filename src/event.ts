@@ -5,6 +5,23 @@ export default class Event {
   static async getPosts(eventId: number, start: number) {
     const result = await Database.getEventPosts(eventId, start);
 
+    if (result) {
+      return result.map(p => { return {
+        id: p.post_id,
+        event: p.event_id,
+        organiser: {
+          id: p.society_id,
+          name: p.society_name,
+          short: p.short_name,
+          image: p.society_image_src
+        },
+        time: p.post_time,
+        body: p.body
+      }});
+    } else {
+      return [];
+    }
+
     return result ? result : [];
   }
 
