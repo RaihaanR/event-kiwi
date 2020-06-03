@@ -25,6 +25,30 @@ app.get('/', (req, res) => {
   res.send('No access');
 });
 
+
+app.get('/societies/:option/:societyId', async (req, res) => {
+  const societyId = +req.params['societyId'];
+  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send('Invalid token');
+  } else {
+    switch (req.params['option']) {
+      case 'follow': {
+        await Profile.setSocietyStatus(userId, societyId, 1);
+        break;
+      }
+      case 'unfollow': {
+        await Profile.setSocietyStatus(userId, societyId, 0);
+        break;
+      }
+    }
+
+    res.send('Success');
+  }
+});
+
 app.get('/events/cards/all', async (req, res) => {
   try {
     res.send(await Database.getAllEventCardDetails());
