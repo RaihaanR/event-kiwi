@@ -45,17 +45,8 @@ export default class Auth {
   }
 
   static async validateBearer(bearer: string) {
-    const options = {
-      method: 'GET',
-      uri: 'https://graph.microsoft.com/v1.0/me',
-      auth: {
-        'bearer': bearer
-      }
-    };
-
     try {
-      const body = await request(options);
-      const user = JSON.parse(body);
+      const user = await Auth.generateUser(bearer);
       const external = user['id'];
 
       let row = await Database.getUserFromAuthID(external);
@@ -93,6 +84,18 @@ export default class Auth {
 
       return result;
     }
+  }
+
+  static async generateUser(bearer: string) {
+    const options = {
+      method: 'GET',
+      uri: 'https://graph.microsoft.com/v1.0/me',
+      auth: {
+        'bearer': bearer
+      }
+    };
+    const body = await request(options);
+    return JSON.parse(body);
   }
 
   static async generateToken() {
