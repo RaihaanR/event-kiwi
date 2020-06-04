@@ -33,15 +33,7 @@ app.get('/societies/search', async (req, res) => {
     res.status(403);
     res.send('Invalid token');
   } else {
-    const following = (await Profile.societies(userId)).map(s => s.society_id);
-    const societies = await Database.searchSocieties();
-    const result = societies.filter(s =>
-      s.society_name.toLowerCase().includes(term) || s.short_name.toLowerCase().includes(term)
-    ).map(s => {
-      s.following = following.includes(s.society_id) ? 1 : 0;
-      return s;
-    });
-    res.send(result);
+    res.send(await Database.searchSocieties(term, userId));
   }
 });
 
