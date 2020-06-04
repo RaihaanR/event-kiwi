@@ -8,6 +8,7 @@ cache:
 
 stages:
   - build
+  - internal
   - external
   - deploy
 
@@ -23,6 +24,16 @@ build:
   artifacts:
     paths:
       - dist/
+
+test authentication:
+  stage: internal
+  cache:
+    policy: pull
+  script:
+    - npm run test-auth
+  dependencies: []
+  except:
+    - staging
 
 test database:
   stage: external
