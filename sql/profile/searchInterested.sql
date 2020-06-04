@@ -2,8 +2,12 @@ SELECT
   "tag",
   COUNT(*)
 FROM
-  "interests"
-  CROSS JOIN UNNEST("tags") AS "tag"
+  (
+    SELECT
+      UNNEST("tags") AS "tag"
+    FROM
+      "interests"
+  ) AS "interests"
 WHERE
   "tag" ILIKE ANY(${pattern})
 GROUP BY
