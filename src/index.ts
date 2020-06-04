@@ -33,15 +33,7 @@ app.get('/societies/search', async (req, res) => {
     res.status(403);
     res.send('Invalid token');
   } else {
-    const following = (await Profile.societies(userId)).map(s => s.society_id);
-    const societies = await Database.searchSocieties();
-    const result = societies.filter(s =>
-      s.society_name.toLowerCase().includes(term) || s.short_name.toLowerCase().includes(term)
-    ).map(s => {
-      s.following = following.includes(s.society_id) ? 1 : 0;
-      return s;
-    });
-    res.send(result);
+    res.send(await Database.searchSocieties(term, userId));
   }
 });
 
@@ -261,6 +253,17 @@ app.post('/profile/interests/delete', async (req, res) => {
   }
 });
 
+app.get('/profile/interests/search', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send('Invalid token');
+  } else {
+    res.send(await Database.countInterested(userId, req.query.q));
+  }
+});
+
 app.get('/profile/all', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
@@ -282,7 +285,7 @@ app.get('/profile/all', async (req, res) => {
 });
 
 app.get('/calendar', async (req, res) => {
-  const userId = await Auth.uidFromBearer(req.headers['authorization']);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);

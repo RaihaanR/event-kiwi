@@ -82,14 +82,18 @@ export default class Database {
   static async searchEvents(query: any): Promise<any[]> {
     const q = query.replace(/(%20)+/g, ' ')
                    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
                    .trim();
 
+    if (q.length === 0) {
+      return [];
+    }
+
     const values = {
-      terms: q.split(' ').map(t => '%' + t + '%'),
-      pattern: '%' + q.replace(/\s/gi, '%') + '%',
+      prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
       search_term: q.replace(/\s/gi, '|')
     };
-    values['length'] = values['terms'].length;
+
     const cards = await db.any(eventSQL.searchEvents, values);
 
     for (let i = 0; i < cards.length; i++) {
@@ -99,8 +103,22 @@ export default class Database {
     return cards;
   }
 
-  static async searchSocieties(): Promise<any[]> {
-    return db.any(societySQL.searchSocieties);
+  static async searchSocieties(query: any, userId: number): Promise<any[]> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
+                   .trim();
+
+    if (q.length === 0) {
+      return [];
+    }
+
+    const values = {
+      user_id: userId,
+      pattern: '%' + q + '%'
+    };
+
+    return db.any(societySQL.searchSocieties, values);
   }
 
   static async getFileName(bucketKey: string): Promise<any | null> {
@@ -202,6 +220,29 @@ export default class Database {
 
   static async removeInterest(userId: number, tag: string): Promise<null> {
     return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
+  }
+  
+  static async countInterested(userId: number, query: any): Promise<any[]> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
+                   .trim();
+
+    if (q.length === 0) {
+      return [];
+    }
+
+    const values = {
+      user_id: userId,
+      pattern: q.replace(/\s/gi, '% ') + '%'
+    };
+
+    const result = await db.any(profileSQL.countInterested, values);
+    const interests = await this.listInterests(userId);
+
+    result.forEach(i => i.interested = interests.tags.includes(i.tag));
+
+    return result;
   }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
