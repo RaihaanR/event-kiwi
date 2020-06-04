@@ -19,6 +19,16 @@ FROM
             "user_id" = ${uid} AND
             "type" > 0
         )
+      OR "events"."event_id" IN
+        (
+          SELECT
+            "event_id"
+          FROM
+            "event_registrations"
+          WHERE
+            "user_id" = ${uid} AND
+            "status" > 0
+        )
   ) AS "joined" LEFT OUTER JOIN
     (
       SELECT
