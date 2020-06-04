@@ -1,6 +1,6 @@
 SELECT
-  "socs".*,
-  COALESCE("ms"."type", 0) AS "following"
+  "societies".*,
+  COALESCE("memberships"."type", 0) AS "following"
 FROM
   (
     SELECT
@@ -8,8 +8,8 @@ FROM
     FROM
       "memberships"
     WHERE
-      "user_id" = ${uid}
-  ) "ms"
+      "user_id" = ${user_id}
+  ) AS "memberships"
   RIGHT OUTER JOIN
   (
     SELECT
@@ -19,5 +19,5 @@ FROM
     WHERE
       "society_name" ILIKE ${pattern}
       OR "short_name" ILIKE ${pattern}
-  ) "socs"
+  ) AS "societies"
   USING ("society_id")

@@ -103,8 +103,22 @@ export default class Database {
     return cards;
   }
 
-  static async searchSocieties(term: any, userId: number): Promise<any[]> {
-    return db.any(societySQL.searchSocieties, {uid: userId, pattern: '%' + term + '%'});
+  static async searchSocieties(query: any, userId: number): Promise<any[]> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
+                   .trim();
+
+    if (q.length === 0) {
+      return [];
+    }
+
+    const values = {
+      user_id: userId,
+      pattern: '%' + q + '%'
+    };
+
+    return db.any(societySQL.searchSocieties, values);
   }
 
   static async getFileName(bucketKey: string): Promise<any | null> {
