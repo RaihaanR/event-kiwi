@@ -99,8 +99,8 @@ export default class Database {
     return cards;
   }
 
-  static async searchSocieties(): Promise<any[]> {
-    return db.any(societySQL.searchSocieties);
+  static async searchSocieties(term: any, userId: number): Promise<any[]> {
+    return db.any(societySQL.searchSocieties, {uid: userId, pattern: '%' + term + '%'});
   }
 
   static async getFileName(bucketKey: string): Promise<any | null> {
