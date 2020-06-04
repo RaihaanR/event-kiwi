@@ -207,6 +207,25 @@ export default class Database {
   static async removeInterest(userId: number, tag: string): Promise<null> {
     return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
   }
+  
+  static async countInterested(userId: number, query: any): Promise<any> {
+    const q = query.replace(/(%20)+/g, ' ')
+                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
+                   .trim();
+
+    if (q.length === 0) {
+      return [false, 0];
+    }
+
+    const values = {
+      search_term: q,
+      user_id: userId,
+      pattern: q.replace(/\s/gi, ':*<->') + ':*'
+    };
+
+    return db.one(profileSQL.countInterested, values);
+  }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
     const values = {
