@@ -85,11 +85,11 @@ export default class Database {
                    .trim();
 
     const values = {
-      terms: q.split(' ').map(t => '%' + t + '%'),
+      prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
       pattern: '%' + q.replace(/\s/gi, '%') + '%',
       search_term: q.replace(/\s/gi, '|')
     };
-    values['length'] = values['terms'].length;
+
     const cards = await db.any(eventSQL.searchEvents, values);
 
     for (let i = 0; i < cards.length; i++) {
