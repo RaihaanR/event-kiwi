@@ -5,7 +5,7 @@ FROM
   "interests"
   CROSS JOIN UNNEST("tags") AS "tag"
 WHERE
-  "tag" ILIKE ${pattern}
+  "tag" ILIKE ANY(ARRAY${pattern})
 GROUP BY
   "tag"
 ORDER BY
