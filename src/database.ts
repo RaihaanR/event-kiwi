@@ -251,10 +251,8 @@ export default class Database {
     }
 
     const pattern = q.replace(/\s/gi, '% ') + '%';
-
     const values = {
-      user_id: userId,
-      pattern: [pattern, '% ' + pattern]
+      pattern: '{"' + pattern + '"' + ', "% ' + pattern + '"}'
     };
 
     const result = await db.any(profileSQL.countInterested, values);
