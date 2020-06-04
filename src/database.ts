@@ -224,10 +224,6 @@ export default class Database {
       pattern: q.replace(/\s/gi, ':*<->') + ':*'
     };
 
-    console.log(values.search_term);
-    console.log(values.user_id);
-    console.log(values.pattern);
-
     return db.one(profileSQL.countInterested, values);
   }
 
