@@ -21,8 +21,6 @@ export default class Event {
     } else {
       return [];
     }
-
-    return result ? result : [];
   }
 
   static async goingStatus(userId: number, eventId: number) {
