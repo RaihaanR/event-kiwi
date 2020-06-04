@@ -35,6 +35,16 @@ test authentication:
   except:
     - staging
 
+test profile:
+  stage: internal
+  cache:
+    policy: pull
+  script:
+    - npm run test-profile
+  dependencies: []
+  except:
+    - staging
+
 test database:
   stage: external
   cache:

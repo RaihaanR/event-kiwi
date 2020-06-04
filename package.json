@@ -9,7 +9,8 @@
     "start": "node .",
     "test-postgres": "mocha -r ts-node/register tests/database.test.ts",
     "test-aws": "mocha -r ts-node/register tests/bucket.test.ts",
-    "test-auth": "mocha -r ts-node/register tests/auth.test.ts"
+    "test-auth": "mocha -r ts-node/register tests/auth.test.ts",
+    "test-profile": "mocha -r ts-node/register tests/profile.test.ts"
   },
   "repository": {
     "type": "git",

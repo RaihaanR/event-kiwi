@@ -1,10 +1,8 @@
-import { expect } from 'chai';
 import sinon from 'sinon';
 import Database from '../src/database'
 import Auth from '../src/auth'
 
 describe('authentication', async () => {
-
   it('obtaining uidFromBearer calls correct functions (valid token)', async () => {
     let database = sinon.mock(Database);
     let auth = sinon.mock(Auth);
