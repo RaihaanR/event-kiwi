@@ -255,12 +255,7 @@ export default class Database {
       pattern: '{"' + pattern + '"' + ', "% ' + pattern + '"}'
     };
 
-    const result = await db.any(profileSQL.countInterested, values);
-    const interests = await this.listInterests(userId);
-
-    result.forEach(i => i.interested = interests.tags.includes(i.tag));
-
-    return result;
+    return await db.any(profileSQL.countInterested, values);
   }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
