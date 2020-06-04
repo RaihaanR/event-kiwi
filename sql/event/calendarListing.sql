@@ -1,17 +1,32 @@
 SELECT
-  *
+ "joined".*,
+ COALESCE("event_registrations"."status", 0) AS "status"
 FROM
-  "societies"
-  INNER JOIN "events" USING ("society_id")
-  INNER JOIN "event_registrations" USING ("event_id")
-WHERE
-  "societies"."society_id" IN (
+  (
     SELECT
-      "society_id"
+      *
     FROM
-      "memberships"
+      "societies"
+      INNER JOIN "events" USING ("society_id")
     WHERE
-      "user_id" = ${uid}
-  )
+      "societies"."society_id" IN
+        (
+          SELECT
+            "society_id"
+          FROM
+            "memberships"
+          WHERE
+            "user_id" = ${uid} AND
+            "type" > 0
+        )
+  ) AS "joined" LEFT OUTER JOIN
+    (
+      SELECT
+        *
+      FROM
+        "event_registrations"
+      WHERE
+        "user_id" = ${uid}
+    ) AS "event_registrations" USING ("event_id")
 ORDER BY
-  "events"."start_datetime"
+  "joined"."start_datetime"
