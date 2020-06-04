@@ -82,11 +82,15 @@ export default class Database {
   static async searchEvents(query: any): Promise<any[]> {
     const q = query.replace(/(%20)+/g, ' ')
                    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                   .toLowerCase()
                    .trim();
+
+    if (q.length === 0) {
+      return [];
+    }
 
     const values = {
       prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
-      pattern: '%' + q.replace(/\s/gi, '%') + '%',
       search_term: q.replace(/\s/gi, '|')
     };
 
