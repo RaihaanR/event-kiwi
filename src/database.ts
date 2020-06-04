@@ -215,11 +215,29 @@ export default class Database {
   }
 
   static async addInterest(userId: number, tag: string): Promise<null> {
-    return db.none(profileSQL.insertNewInterest, {user_id: userId, tag: tag});
+    const t = tag.replace(/(%20)+/g, ' ')
+                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                 .toLowerCase()
+                 .trim();
+
+    if (t.length === 0) {
+      return;
+    }
+
+    return db.none(profileSQL.insertNewInterest, {user_id: userId, tag: t});
   }
 
   static async removeInterest(userId: number, tag: string): Promise<null> {
-    return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
+    const t = tag.replace(/(%20)+/g, ' ')
+                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                 .toLowerCase()
+                 .trim();
+
+    if (t.length === 0) {
+      return;
+    }
+
+    return db.none(profileSQL.deleteInterest, {user_id: userId, tag: t});
   }
   
   static async countInterested(userId: number, query: any): Promise<any[]> {
@@ -232,9 +250,9 @@ export default class Database {
       return [];
     }
 
+    const pattern = q.replace(/\s/gi, '% ') + '%';
     const values = {
-      user_id: userId,
-      pattern: q.replace(/\s/gi, '% ') + '%'
+      pattern: '{"' + pattern + '"' + ', "% ' + pattern + '"}'
     };
 
     const result = await db.any(profileSQL.countInterested, values);
