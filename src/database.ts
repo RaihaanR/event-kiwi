@@ -222,23 +222,27 @@ export default class Database {
     return db.none(profileSQL.deleteInterest, {user_id: userId, tag: tag});
   }
   
-  static async countInterested(userId: number, query: any): Promise<any> {
+  static async countInterested(userId: number, query: any): Promise<any[]> {
     const q = query.replace(/(%20)+/g, ' ')
                    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
                    .toLowerCase()
                    .trim();
 
     if (q.length === 0) {
-      return [false, 0];
+      return [];
     }
 
     const values = {
-      search_term: q,
       user_id: userId,
-      pattern: q.replace(/\s/gi, ':*<->') + ':*'
+      pattern: q.replace(/\s/gi, '% ') + '%'
     };
 
-    return db.one(profileSQL.countInterested, values);
+    const result = await db.any(profileSQL.countInterested, values);
+    const interests = await this.listInterests(userId);
+
+    result.forEach(i => i.interested = interests.tags.includes(i.tag));
+
+    return result;
   }
 
   static async goingStatus(userId: number, eventId: number): Promise<any | null> {
