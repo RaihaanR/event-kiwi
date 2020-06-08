@@ -307,5 +307,14 @@ export default class Database {
   static async getSocietyFromOwner(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.getSocietyFromOwner, {uid: userId});
   }
+
+  static async checkIfUserCanDelete(key: string, userId: number): Promise<any | null> {
+    const values = {
+      key: key,
+      uid: userId
+    };
+
+    return db.oneOrNone("SELECT * FROM files INNER JOIN societies USING (society_id) WHERE files.bucket_key = ${key} AND societies.owner = ${uid}", values);
+  }
 }
 

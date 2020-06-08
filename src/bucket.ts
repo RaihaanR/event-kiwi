@@ -52,9 +52,21 @@ export default class Bucket {
     res.send(await Database.getFilesBySociety(society));
   }
 
-  static async uploadFile(name, society, body, res) {
-    const salted = Buffer.concat([body, Buffer.from(name + society.toString(), 'utf8')]);
+  static async deleteFile(key, user) {
+    const params = {
+      Bucket: bucketName,
+      Key: key
+    };
 
+    if (await Database.checkIfUserCanDelete(key, user)) {
+
+    } else {
+
+    }
+  }
+
+  static async uploadFile(name, society, body) {
+    const salted = Buffer.concat([body, Buffer.from(name + society.toString(), 'utf8')]);
     const hash = Crypto.createHmac('sha256', salted).digest('hex');
 
     const params = {
@@ -63,27 +75,26 @@ export default class Bucket {
       Body: body
     };
 
-    s3.putObject(params, async (perr, pres) => {
-      const result = {};
+    const result = {};
 
-      if (perr) {
+    try {
+      await s3.putObject(params).promise();
+      let row = await Database.getFileName(hash);
+
+      if (row) {
         result['status'] = 0;
-        result['body'] = 'ERROR: ' + perr;
+        result['body'] = 'ERROR: hash already exists';
       } else {
-        let row = await Database.getFileName(hash);
+        await Database.putFile(name, hash, society);
 
-        if (row) {
-          result['status'] = 0;
-          result['body'] = 'ERROR: hash already exists';
-        } else {
-          await Database.putFile(name, hash, society);
-
-          result['status'] = 1;
-          result['body'] = hash;
-        }
+        result['status'] = 1;
+        result['body'] = hash;
       }
-      res.send(result);
-    });
+    } catch (err) {
+      result['status'] = 0;
+      result['body'] = 'ERROR: ' + err;
+    }
+    return result;
   }
 }
 

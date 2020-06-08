@@ -179,7 +179,7 @@ app.post('/file/upload', async (req, res) => {
         res.send("No file included");
       } else {
         const file: any = req.files['upload'];
-        Bucket.uploadFile(file.name, societyId, file.data, res);
+        res.send(await Bucket.uploadFile(file.name, societyId, file.data));
       }
     } else {
       res.status(403);
@@ -326,11 +326,11 @@ app.get('/mirror/:name/:uri', (req, res) => {
     encoding: null
   };
 
-  request(options, (error, response, body) => {
+  request(options, async (error, response, body) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') . + response.statusCode + ');
     } else {
-      Bucket.uploadFile(req.params.name, 0, body, res);
+      res.send(await Bucket.uploadFile(req.params.name, 0, body));
     }
   });
 });
