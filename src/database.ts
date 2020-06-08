@@ -308,5 +308,18 @@ export default class Database {
   static async getSocietyFromOwner(userId: number): Promise<any | null> {
     return db.oneOrNone(profileSQL.getSocietyFromOwner, {uid: userId});
   }
+
+  static async checkIfUserCanDelete(key: string, userId: number): Promise<any | null> {
+    const values = {
+      key: key,
+      uid: userId
+    };
+
+    return db.oneOrNone(fileSQL.checkDeletion, values);
+  }
+
+  static async deleteFileEntry(fileId: number) {
+    return db.none(fileSQL.deleteFile, {fid: fileId});
+  }
 }
 
