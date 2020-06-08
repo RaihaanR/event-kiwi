@@ -3,6 +3,7 @@ import request from 'request-promise';
 import crypto from 'crypto';
 
 import Database from './database';
+import Profile from './profile';
 
 export default class Auth {
 
@@ -46,7 +47,14 @@ export default class Auth {
 
   static async validateBearer(bearer: string) {
     try {
-      const user = await Auth.generateUser(bearer);
+      const graph = await Auth.generateUser(bearer);
+      const society = !(graph.givenName && graph.surname);
+      const user = {
+        id: graph.id,
+        givenName: society ? graph.displayName : graph.givenName,
+        surname: society ? "" : graph.surname,
+        mail: graph.mail
+      };
       const external = user['id'];
 
       let row = await Database.getUserFromAuthID(external);
@@ -70,7 +78,11 @@ export default class Auth {
           profile: {
             firstname: user['givenName'],
             surname: user['surname'],
-            email: user['mail']
+            email: user['mail'],
+            society: {
+              status: society,
+              value: await Profile.getSocietyFromOwner(row['user_id'])
+            }
           }
         }
       };

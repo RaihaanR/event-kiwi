@@ -303,5 +303,9 @@ export default class Database {
   static async getTestDetails(testId: number): Promise<any | null> {
     return db.oneOrNone("SELECT * FROM tests WHERE test_id = ${tid}", {tid: testId});
   }
+
+  static async getSocietyFromOwner(userId: number): Promise<any | null> {
+    return db.oneOrNone(profileSQL.getSocietyFromOwner, {uid: userId});
+  }
 }
 

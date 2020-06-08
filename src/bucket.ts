@@ -53,7 +53,9 @@ export default class Bucket {
   }
 
   static async uploadFile(name, society, body, res) {
-    const hash = Crypto.createHmac('sha256', body).digest('hex');
+    const salted = Buffer.concat([body, Buffer.from(name + society.toString(), 'utf8')]);
+
+    const hash = Crypto.createHmac('sha256', salted).digest('hex');
 
     const params = {
       Bucket: bucketName,
@@ -66,14 +68,20 @@ export default class Bucket {
 
       if (perr) {
         result['status'] = 0;
-        result['body'] = 'error: ' + perr;
+        result['body'] = 'ERROR: ' + perr;
       } else {
-        await Database.putFile(name, hash, society);
+        let row = await Database.getFileName(hash);
 
-        result['status'] = 1;
-        result['body'] = hash;
+        if (row) {
+          result['status'] = 0;
+          result['body'] = 'ERROR: hash already exists';
+        } else {
+          await Database.putFile(name, hash, society);
+
+          result['status'] = 1;
+          result['body'] = hash;
+        }
       }
-
       res.send(result);
     });
   }
