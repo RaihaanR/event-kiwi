@@ -79,7 +79,7 @@ export default class Database {
     return details;
   }
 
-  static async searchEvents(query: any): Promise<any[]> {
+  static async searchEvents(query: any, offset: number): Promise<any[]> {
     const q = query.replace(/(%20)+/g, ' ')
                    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
                    .toLowerCase()
@@ -91,7 +91,8 @@ export default class Database {
 
     const values = {
       prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
-      search_term: q.replace(/\s/gi, '|')
+      search_term: q.replace(/\s/gi, '|'),
+      offset: offset
     };
 
     const cards = await db.any(eventSQL.searchEvents, values);
