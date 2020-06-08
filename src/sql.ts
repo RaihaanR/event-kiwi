@@ -52,6 +52,6 @@ export const profile = {
   deleteInterest: sql('../sql/profile/deleteInterest.sql'),
   setSocietyStatus: sql('../sql/profile/societyStatus.sql'),
   countInterested: sql('../sql/profile/searchInterested.sql'),
-  getSocietyFromOwner: sql('../societyFromUser.sql')
+  getSocietyFromOwner: sql('../sql/profile/societyFromUser.sql')
 };
 
