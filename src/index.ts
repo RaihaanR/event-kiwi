@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import bodyParser from 'body-parser';
+import fileUpload, { UploadedFile } from 'express-fileupload'
 
 import Bucket from './bucket';
 import Database from './database';
@@ -16,6 +17,7 @@ const empty = [];
 const nothing = {};
 
 app.use(cors());
+app.use(fileUpload());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
@@ -161,6 +163,29 @@ app.get('/events/search', async (req, res) => {
 
 app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res);
+});
+
+app.post('/file/upload', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      if (!req.files.upload) {
+        res.status(400);
+        res.send("No file included");
+      } else {
+        const file: any = req.files['upload'];
+        Bucket.uploadFile(file.name, societyId, file.data, res);
+      }
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
 });
 
 app.get('/file/list/:societyId', async (req, res) => {
