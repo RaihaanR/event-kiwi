@@ -3,6 +3,7 @@ import request from 'request-promise';
 import crypto from 'crypto';
 
 import Database from './database';
+import Profile from './profile';
 
 export default class Auth {
 
@@ -77,7 +78,11 @@ export default class Auth {
           profile: {
             firstname: user['givenName'],
             surname: user['surname'],
-            email: user['mail']
+            email: user['mail'],
+            society: {
+              status: society,
+              value: await Profile.getSocietyFromOwner(row['user_id'])
+            }
           }
         }
       };
