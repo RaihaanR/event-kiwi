@@ -21,5 +21,11 @@ export default class Profile {
   static async setSocietyStatus(userId: number, societyId: number, status: number) {
     return await Database.setSocietyStatus(userId, societyId, status);
   }
+
+  static async getSocietyFromOwner(userId: number) {
+    const result = await Database.getSocietyFromOwner(userId);
+
+    return result ? result.society_id : 0;
+  }
 }
 
