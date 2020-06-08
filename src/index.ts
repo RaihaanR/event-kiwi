@@ -62,6 +62,30 @@ app.get('/societies/:option/:societyId', async (req, res) => {
   }
 });
 
+app.post('/events/create', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      const name = req.body.name;
+      const location = req.body.location;
+      const desc = req.body.desc;
+      const privacy = req.body.privacy;
+      const tags = req.body.tags;
+      const start = new Date(req.body.start);
+      const end = new Date(req.body.end);
+      const img = req.body.img;
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
+});
+
 app.get('/events/cards/all', async (req, res) => {
   try {
     res.send(await Database.getAllEventCardDetails());
@@ -177,6 +201,29 @@ app.get('/file/delete/:key', async (req, res) => {
 });
 
 app.post('/file/upload', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      if (!req.files.upload) {
+        res.status(400);
+        res.send("No file included");
+      } else {
+        const file: any = req.files['upload'];
+        res.send(await Bucket.uploadFile(file.name, societyId, file.data));
+      }
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
+});
+
+app.post('/file/upload/event', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
