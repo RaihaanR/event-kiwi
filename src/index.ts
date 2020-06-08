@@ -154,7 +154,7 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 
 app.get('/events/search', async (req, res) => {
   try {
-    res.send(await Database.searchEvents(req.query.q));
+    res.send(await Database.searchEvents(req.query.q, +req.query.n));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -163,6 +163,17 @@ app.get('/events/search', async (req, res) => {
 
 app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res);
+});
+
+app.get('/file/delete/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Bucket.deleteFile(req.params.key, userId));
+  }
 });
 
 app.post('/file/upload', async (req, res) => {
@@ -179,7 +190,7 @@ app.post('/file/upload', async (req, res) => {
         res.send("No file included");
       } else {
         const file: any = req.files['upload'];
-        Bucket.uploadFile(file.name, societyId, file.data, res);
+        res.send(await Bucket.uploadFile(file.name, societyId, file.data));
       }
     } else {
       res.status(403);
@@ -326,11 +337,11 @@ app.get('/mirror/:name/:uri', (req, res) => {
     encoding: null
   };
 
-  request(options, (error, response, body) => {
+  request(options, async (error, response, body) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') . + response.statusCode + ');
     } else {
-      Bucket.uploadFile(req.params.name, 0, body, res);
+      res.send(await Bucket.uploadFile(req.params.name, 0, body));
     }
   });
 });
