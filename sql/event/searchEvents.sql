@@ -27,4 +27,4 @@ ORDER BY
     ts_rank_cd(to_tsvector("short_name"), to_tsquery(${prefix_pattern})) +
     ts_rank_cd(to_tsvector(array_to_string("tags", ' ')), to_tsquery(${search_term}), 8)
   ) DESC
-LIMIT 25 OFFSET ${offset}
+LIMIT 18 OFFSET ${offset}
