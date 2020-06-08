@@ -46,7 +46,14 @@ export default class Auth {
 
   static async validateBearer(bearer: string) {
     try {
-      const user = await Auth.generateUser(bearer);
+      const graph = await Auth.generateUser(bearer);
+      const society = !(graph.givenName && graph.surname);
+      const user = {
+        id: graph.id,
+        givenName: society ? graph.displayName : graph.givenName,
+        surname: society ? "" : graph.surname,
+        mail: graph.mail
+      };
       const external = user['id'];
 
       let row = await Database.getUserFromAuthID(external);
