@@ -12,10 +12,14 @@ FROM
   INNER JOIN "event_tags" USING ("event_id")
   INNER JOIN "societies" USING ("society_id")
 WHERE
-  to_tsvector("event_name") @@ to_tsquery(${prefix_pattern})
-  OR to_tsvector("society_name") @@ to_tsquery(${prefix_pattern})
-  OR to_tsvector("short_name") @@ to_tsquery(${prefix_pattern})
-  OR to_tsvector(array_to_string("tags", ' ')) @@ to_tsquery(${search_term})
+  "end_datetime" > now()
+  AND
+  (
+    to_tsvector("event_name") @@ to_tsquery(${prefix_pattern})
+    OR to_tsvector("society_name") @@ to_tsquery(${prefix_pattern})
+    OR to_tsvector("short_name") @@ to_tsquery(${prefix_pattern})
+    OR to_tsvector(array_to_string("tags", ' ')) @@ to_tsquery(${search_term})
+  )
 ORDER BY
   (
     ts_rank_cd(to_tsvector("event_name"), to_tsquery(${prefix_pattern}), 16) +
@@ -23,3 +27,4 @@ ORDER BY
     ts_rank_cd(to_tsvector("short_name"), to_tsquery(${prefix_pattern})) +
     ts_rank_cd(to_tsvector(array_to_string("tags", ' ')), to_tsquery(${search_term}), 8)
   ) DESC
+LIMIT 25 OFFSET ${offset}

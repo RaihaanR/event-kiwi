@@ -154,7 +154,7 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 
 app.get('/events/search', async (req, res) => {
   try {
-    res.send(await Database.searchEvents(req.query.q));
+    res.send(await Database.searchEvents(req.query.q, +req.query.n));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
