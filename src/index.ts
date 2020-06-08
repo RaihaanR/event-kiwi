@@ -165,6 +165,17 @@ app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res);
 });
 
+app.get('/file/delete/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Bucket.deleteFile(req.params.key, userId));
+  }
+});
+
 app.post('/file/upload', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 

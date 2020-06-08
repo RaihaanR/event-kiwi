@@ -29,7 +29,9 @@ export const society = {
 export const file = {
   findFileDetails: sql('../sql/file/fileDetails.sql'),
   findFileName: sql('../sql/file/fileName.sql'),
-  insertNewFile: sql('../sql/file/newFile.sql')
+  insertNewFile: sql('../sql/file/newFile.sql'),
+  checkDeletion: sql('../sql/file/checkDeletion.sql'),
+  deleteFile: sql('../sql/file/deleteFile.sql')
 };
 
 export const auth = {

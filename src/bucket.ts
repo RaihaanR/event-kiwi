@@ -24,7 +24,7 @@ export default class Bucket {
   }
 
   static async downloadByKey(req, res) {
-    const key = req.params['key'];
+    const key = req.params.key;
     const entry = await Database.getFileName(key);
 
     if (entry) {
@@ -37,7 +37,7 @@ export default class Bucket {
         if (err) {
           res.send('Unable to access file');
         } else {
-          res.setHeader('content-disposition', 'attachment; filename=' + entry['display_name']);
+          res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
           res.send(data.Body);
         }
       });
@@ -47,7 +47,7 @@ export default class Bucket {
   }
 
   static async listBySociety(req, res) {
-    const society = +req.params['society'];
+    const society = +req.params.society;
 
     res.send(await Database.getFilesBySociety(society));
   }
@@ -58,11 +58,28 @@ export default class Bucket {
       Key: key
     };
 
-    if (await Database.checkIfUserCanDelete(key, user)) {
+    const result: any = {};
 
-    } else {
+    try {
+      const row = await Database.checkIfUserCanDelete(key, user);
 
+      if (row) {
+        await s3.deleteObject(params).promise();
+        const id = row.file_id;
+
+        await Database.deleteFileEntry(id);
+        result.status = 1;
+        result.body = 'File \'' + row.display_name + '\' (' + key + ') deleted';
+      } else {
+        result.status = 0;
+        result.body = 'ERROR: not permitted to delete file';
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = 'ERROR: ' + err;
     }
+
+    return result;
   }
 
   static async uploadFile(name, society, body) {
@@ -75,25 +92,26 @@ export default class Bucket {
       Body: body
     };
 
-    const result = {};
+    const result: any = {};
 
     try {
       await s3.putObject(params).promise();
       let row = await Database.getFileName(hash);
 
       if (row) {
-        result['status'] = 0;
-        result['body'] = 'ERROR: hash already exists';
+        result.status = 0;
+        result.body = 'ERROR: hash already exists';
       } else {
         await Database.putFile(name, hash, society);
 
-        result['status'] = 1;
-        result['body'] = hash;
+        result.status = 1;
+        result.body = hash;
       }
     } catch (err) {
-      result['status'] = 0;
-      result['body'] = 'ERROR: ' + err;
+      result.status = 0;
+      result.body = 'ERROR: ' + err;
     }
+
     return result;
   }
 }

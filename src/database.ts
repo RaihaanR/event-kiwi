@@ -314,7 +314,11 @@ export default class Database {
       uid: userId
     };
 
-    return db.oneOrNone("SELECT * FROM files INNER JOIN societies USING (society_id) WHERE files.bucket_key = ${key} AND societies.owner = ${uid}", values);
+    return db.oneOrNone(fileSQL.checkDeletion, values);
+  }
+
+  static async deleteFileEntry(fileId: number) {
+    return db.none(fileSQL.deleteFile, {fid: fileId});
   }
 }
 
