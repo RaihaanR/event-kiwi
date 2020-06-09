@@ -1,4 +1,5 @@
 import Database from './database';
+import Profile from './profile';
 
 export default class Event {
 
@@ -80,7 +81,14 @@ export default class Event {
   static async goingStatus(userId: number, eventId: number) {
     const result = await Database.goingStatus(userId, eventId);
 
-    return result ? result['status'] : 0;
+    const owner = await Database.canPost(userId, eventId);
+
+    if (owner) {
+      return 3;
+    } else {
+      return result ? result['status'] : 0;
+    }
+
   }
 
   static async setStatus(userId: number, eventId: number, status: number) {
