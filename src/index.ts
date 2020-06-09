@@ -62,6 +62,26 @@ app.get('/societies/:option/:societyId', async (req, res) => {
   }
 });
 
+app.post('/events/edit/:eventId', async (req, res) => {
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const name = req.body.name;
+    const location = req.body.location;
+    const desc = req.body.desc;
+    const privacy = req.body.privacy;
+    const tags = req.body.tags;
+    const start = new Date(req.body.start);
+    const end = new Date(req.body.end);
+    const img = req.body.img;
+    res.send(await Event.editEvent(userId, eventId, name, location, desc, privacy, tags, start, end, img));
+  }
+});
+
 app.post('/events/create', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
@@ -101,19 +121,7 @@ app.get('/events/details/:eventId', async (req, res) => {
     const eventId = +req.params.eventId;
     const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-    let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
-
-    const details = await Database.getEventDetails(eventId);
-    const all = await Database.getAllEventCardDetails();
-
-    details.resources = await Database.getFilesByEvent(eventId);
-    details.going_status = going;
-    details.similar_events = all.filter(e =>
-      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
-    );
-    details.posts = empty;
-
-    res.send(details);
+    res.send(await Event.getDetails(eventId, userId));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);

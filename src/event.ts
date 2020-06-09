@@ -96,14 +96,52 @@ export default class Event {
 
     try {
       const row = await Database.createEvent(societyId, name, location, desc, privacy, tags, start, end, img);
+      const owner = await Database.getSocietyOwner(societyId);
       result.status = 1;
-      result.body = row.event_id;
+      result.body = await Event.getDetails(row.event_id, owner.owner);
     } catch (err) {
       result.status = 0;
       result.body = "ERROR: " + err;
     }
 
     return result;
+  }
+
+  static async editEvent(userId: number, eventId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string) {
+    const result: any = {};
+
+    try {
+      const owner = await Database.canPost(userId, eventId);
+
+      if (owner) {
+        await Database.editEvent(eventId, name, location, desc, privacy, tags, start, end, img);
+        result.status = 1;
+        result.body = await Event.getDetails(eventId, userId);
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you do not have permission to edit this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
+  static async getDetails(eventId: number, userId: number) {
+    let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
+
+    const details = await Database.getEventDetails(eventId);
+    const all = await Database.getAllEventCardDetails();
+    details.resources = await Database.getFilesByEvent(eventId);
+    details.going_status = going;
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
+    );
+    details.posts = [];
+
+    return details
   }
 
   static async setStatus(userId: number, eventId: number, status: number) {

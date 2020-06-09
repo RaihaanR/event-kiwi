@@ -4,4 +4,4 @@ INSERT INTO
     "tags"
   )
 VALUES
-  (${eid}, ${tags:csv})
+  (${eid}, ARRAY [${tags:csv}])

@@ -19,7 +19,11 @@ export const event = {
   postDeletePermission: sql('../sql/event/postDeletePermission.sql'),
   postDelete: sql('../sql/event/postDelete.sql'),
   postCreatePermission: sql('../sql/event/postPermission.sql'),
-  postCreate: sql('../sql/event/postCreate.sql')
+  postCreate: sql('../sql/event/postCreate.sql'),
+  createEvent: sql('../sql/event/createEvent.sql'),
+  createEventTags: sql('../sql/event/createEventTags.sql'),
+  editEvent: sql('../sql/event/editEvent.sql'),
+  editEventTags: sql('../sql/event/editEventTags.sql')
 };
 
 export const society = {
@@ -27,7 +31,8 @@ export const society = {
   findSocietyEventCards: sql('../sql/society/societyEventCards.sql'),
   excludeEventCondition: sql('../sql/society/excludeEventCondition.sql'),
   findSocietyFiles: sql('../sql/society/societyFiles.sql'),
-  searchSocieties: sql('../sql/society/searchSocieties.sql')
+  searchSocieties: sql('../sql/society/searchSocieties.sql'),
+  getOwner: sql('../sql/society/getOwner.sql')
 };
 
 export const file = {

@@ -377,16 +377,42 @@ export default class Database {
       priv: privacy
     };
 
-    const row = await db.one("INSERT INTO events (event_name, start_datetime, end_datetime, location, description, society_id, event_image_src, privacy) VALUES (${name}, ${start}, ${end}, ${location}, ${desc}, ${sid}, ${img}, ${priv}) RETURNING *", values);
+    const row = await db.one(eventSQL.createEvent, values);
 
     const tagValues = {
       eid: row.event_id,
       tags: tags
     }
 
-    await db.none("INSERT INTO event_tags (event_id, tags) VALUES (${eid}, ARRAY [${tags:csv}])", tagValues);
+    await db.none(eventSQL.createEventTags, tagValues);
 
     return row;
+  }
+
+  static async editEvent(eventId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      img: img,
+      priv: privacy
+    };
+
+    await db.none(eventSQL.editEvent, values);
+
+    const tagValues = {
+      eid: eventId,
+      tags: tags
+    }
+
+    return db.none(eventSQL.editEventTags, tagValues);
+  }
+
+  static async getSocietyOwner(societyId: number): Promise<any> {
+    return db.one(societySQL.getOwner, {sid: societyId});
   }
 }
 
