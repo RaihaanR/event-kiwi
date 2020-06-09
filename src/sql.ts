@@ -15,7 +15,11 @@ export const event = {
   goingStatus: sql('../sql/event/goingStatus.sql'),
   setStatus: sql('../sql/event/setStatus.sql'),
   calendarListing: sql('../sql/event/calendarListing.sql'),
-  postListing: sql('../sql/event/postListing.sql')
+  postListing: sql('../sql/event/postListing.sql'),
+  postDeletePermission: sql('../sql/event/postDeletePermission.sql'),
+  postDelete: sql('../sql/event/postDelete.sql'),
+  postCreatePermission: sql('../sql/event/postPermission.sql'),
+  postCreate: sql('../sql/event/postCreate.sql')
 };
 
 export const society = {

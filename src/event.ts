@@ -23,6 +23,28 @@ export default class Event {
     }
   }
 
+  static async deletePost(userId: number, postId: number) {
+    const result: any = {};
+
+    try {
+      const permission = await Database.canDeletePost(userId, postId);
+
+      if (permission) {
+        await Database.deletePost(postId);
+        result.status = 1;
+        result.body = "Post deleted";
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you are not permitted to delete posts on this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
   static async putPost(userId: number, eventId: number, body: string) {
     const result: any = {};
 

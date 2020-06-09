@@ -339,7 +339,7 @@ export default class Database {
       uid: userId
     }
 
-    return db.oneOrNone("SELECT * FROM events INNER JOIN societies USING (society_id) WHERE events.event_id = ${eid} AND societies.owner = ${uid}", values);
+    return db.oneOrNone(eventSQL.postCreatePermission, values);
   }
 
   static async createPost(eventId: number, societyId: number, body: string): Promise<any> {
@@ -349,7 +349,20 @@ export default class Database {
       body: body
     };
 
-    return db.one("INSERT INTO posts (event_id, society_id, body) VALUES (${eid}, ${sid}, ${body}) RETURNING *", values);
+    return db.one(eventSQL.postCreate, values);
+  }
+
+  static async canDeletePost(userId: number, postId: number): Promise<any | null> {
+    const values = {
+      uid: userId,
+      pid: postId
+    };
+
+    return db.oneOrNone(eventSQL.postDeletePermission, values);
+  }
+
+  static async deletePost(postId: number): Promise<null> {
+    return db.none(eventSQL.postDelete, {pid: postId});
   }
 }
 
