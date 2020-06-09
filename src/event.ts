@@ -91,6 +91,21 @@ export default class Event {
 
   }
 
+  static async createEvent(societyId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string) {
+    const result: any = {};
+
+    try {
+      const row = await Database.createEvent(societyId, name, location, desc, privacy, tags, start, end, img);
+      result.status = 1;
+      result.body = row.event_id;
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
   static async setStatus(userId: number, eventId: number, status: number) {
     return await Database.setStatus(userId, eventId, status);
   }

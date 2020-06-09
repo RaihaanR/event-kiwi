@@ -364,5 +364,29 @@ export default class Database {
   static async deletePost(postId: number): Promise<null> {
     return db.none(eventSQL.postDelete, {pid: postId});
   }
+
+  static async createEvent(societyId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      sid: societyId,
+      img: img,
+      priv: privacy
+    };
+
+    const row = await db.one("INSERT INTO events (event_name, start_datetime, end_datetime, location, description, society_id, event_image_src, privacy) VALUES (${name}, ${start}, ${end}, ${location}, ${desc}, ${sid}, ${img}, ${priv}) RETURNING *", values);
+
+    const tagValues = {
+      eid: row.event_id,
+      tags: tags
+    }
+
+    await db.none("INSERT INTO event_tags (event_id, tags) VALUES (${eid}, ARRAY [${tags:csv}])", tagValues);
+
+    return row;
+  }
 }
 

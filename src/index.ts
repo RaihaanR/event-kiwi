@@ -79,6 +79,7 @@ app.post('/events/create', async (req, res) => {
       const start = new Date(req.body.start);
       const end = new Date(req.body.end);
       const img = req.body.img;
+      res.send(await Event.createEvent(societyId, name, location, desc, privacy, tags, start, end, img));
     } else {
       res.status(403);
       res.send("Not a society");
