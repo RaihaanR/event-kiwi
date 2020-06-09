@@ -1,5 +1,5 @@
 INSERT INTO
-  "files" (
+  ${ft:name} (
     "display_name",
     "bucket_key",
     "society_id"
