@@ -332,5 +332,24 @@ export default class Database {
   static async deleteFileEntry(fileId: number) {
     return db.none(fileSQL.deleteFile, {fid: fileId});
   }
+
+  static async canPost(userId: number, eventId: number): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      uid: userId
+    }
+
+    return db.oneOrNone("SELECT * FROM events INNER JOIN societies USING (society_id) WHERE events.event_id = ${eid} AND societies.owner = ${uid}", values);
+  }
+
+  static async createPost(eventId: number, societyId: number, body: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      sid: societyId,
+      body: body
+    };
+
+    return db.one("INSERT INTO posts (event_id, society_id, body) VALUES (${eid}, ${sid}, ${body}) RETURNING *", values);
+  }
 }
 

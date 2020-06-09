@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import bodyParser from 'body-parser';
-import fileUpload, { UploadedFile } from 'express-fileupload'
+import fileUpload from 'express-fileupload'
 
 import Bucket from './bucket';
 import Database from './database';
@@ -143,6 +143,19 @@ app.get('/events/:option/:eventId', async (req, res) => {
     }
 
     res.send('Success');
+  }
+});
+
+app.post('/events/posts/:eventId/new', async (req, res) => {
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const content = req.body.content;
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.putPost(userId, eventId, content));
   }
 });
 
