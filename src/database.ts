@@ -351,5 +351,18 @@ export default class Database {
 
     return db.one("INSERT INTO posts (event_id, society_id, body) VALUES (${eid}, ${sid}, ${body}) RETURNING *", values);
   }
+
+  static async canDeletePost(userId: number, postId: number): Promise<any | null> {
+    const values = {
+      uid: userId,
+      pid: postId
+    };
+
+    return db.oneOrNone("SELECT * FROM posts INNER JOIN societies USING (society_id) WHERE societies.owner = ${uid} AND posts.post_id = ${pid}", values);
+  }
+
+  static async deletePost(postId: number): Promise<null> {
+    return db.none("DELETE FROM posts WHERE post_id = ${pid}", {pid: postId});
+  }
 }
 
