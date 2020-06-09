@@ -122,8 +122,13 @@ export default class Database {
     return db.any(societySQL.searchSocieties, values);
   }
 
-  static async getFileName(bucketKey: string): Promise<any | null> {
-    return db.oneOrNone(fileSQL.findFileName, {bucket_key: bucketKey});
+  static async getFileName(bucketKey: string, fileTable: string): Promise<any | null> {
+    const values = {
+      ft: fileTable,
+      bucket_key: bucketKey
+    };
+
+    return db.oneOrNone(fileSQL.findFileName, values);
   }
 
   static async getFilesBySociety(societyId: number): Promise<any[]> {
@@ -134,12 +139,18 @@ export default class Database {
     return db.any(eventSQL.findEventFiles, {event_id: eventId});
   }
 
-  static async getFilesByIds(fileIds: number[]): Promise<any> {
-    return db.any(fileSQL.findFileDetails, {file_ids: fileIds});
+  static async getFilesByIds(fileIds: number[], fileTable: string): Promise<any> {
+    const values = {
+      ft: fileTable,
+      file_ids: fileIds
+    };
+
+    return db.any(fileSQL.findFileDetails, values);
   }
 
-  static async putFile(fileName: string, bucketKey: string, societyId: number) {
+  static async putFile(fileName: string, bucketKey: string, societyId: number, fileTable: string) {
     const values = {
+      ft: fileTable,
       file_name: fileName,
       bucket_key: bucketKey,
       society_id: societyId
@@ -320,6 +331,25 @@ export default class Database {
 
   static async deleteFileEntry(fileId: number) {
     return db.none(fileSQL.deleteFile, {fid: fileId});
+  }
+
+  static async canPost(userId: number, eventId: number): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      uid: userId
+    }
+
+    return db.oneOrNone("SELECT * FROM events INNER JOIN societies USING (society_id) WHERE events.event_id = ${eid} AND societies.owner = ${uid}", values);
+  }
+
+  static async createPost(eventId: number, societyId: number, body: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      sid: societyId,
+      body: body
+    };
+
+    return db.one("INSERT INTO posts (event_id, society_id, body) VALUES (${eid}, ${sid}, ${body}) RETURNING *", values);
   }
 }
 

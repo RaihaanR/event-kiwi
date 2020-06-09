@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import bodyParser from 'body-parser';
-import fileUpload, { UploadedFile } from 'express-fileupload'
+import fileUpload from 'express-fileupload'
 
 import Bucket from './bucket';
 import Database from './database';
@@ -59,6 +59,30 @@ app.get('/societies/:option/:societyId', async (req, res) => {
     }
 
     res.send('Success');
+  }
+});
+
+app.post('/events/create', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      const name = req.body.name;
+      const location = req.body.location;
+      const desc = req.body.desc;
+      const privacy = req.body.privacy;
+      const tags = req.body.tags;
+      const start = new Date(req.body.start);
+      const end = new Date(req.body.end);
+      const img = req.body.img;
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
   }
 });
 
@@ -122,6 +146,19 @@ app.get('/events/:option/:eventId', async (req, res) => {
   }
 });
 
+app.post('/events/posts/:eventId/new', async (req, res) => {
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const content = req.body.content;
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.putPost(userId, eventId, content));
+  }
+});
+
 app.get('/events/posts/:eventId/:start', async (req, res) => {
   const eventId = +req.params.eventId;
   const start = +req.params.start;
@@ -162,7 +199,7 @@ app.get('/events/search', async (req, res) => {
 });
 
 app.get('/file/get/:key', (req, res) => {
-  Bucket.downloadByKey(req, res);
+  Bucket.downloadByKey(req, res, "files");
 });
 
 app.get('/file/delete/:key', async (req, res) => {
@@ -190,7 +227,34 @@ app.post('/file/upload', async (req, res) => {
         res.send("No file included");
       } else {
         const file: any = req.files['upload'];
-        res.send(await Bucket.uploadFile(file.name, societyId, file.data));
+        res.send(await Bucket.uploadResource(file.name, societyId, file.data));
+      }
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
+});
+
+app.get('/img/get/:key', (req, res) => {
+  Bucket.downloadByKey(req, res, "image_mirrors");
+});
+
+app.post('/img/upload', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      if (!req.files.upload) {
+        res.status(400);
+        res.send("No file included");
+      } else {
+        const file: any = req.files['upload'];
+        res.send(await Bucket.uploadImage(file.name, societyId, file.data));
       }
     } else {
       res.status(403);
@@ -341,7 +405,7 @@ app.get('/mirror/:name/:uri', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') . + response.statusCode + ');
     } else {
-      res.send(await Bucket.uploadFile(req.params.name, 0, body));
+      res.send(await Bucket.uploadResource(req.params.name, 0, body));
     }
   });
 });

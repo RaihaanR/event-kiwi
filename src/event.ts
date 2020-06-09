@@ -23,6 +23,38 @@ export default class Event {
     }
   }
 
+  static async putPost(userId: number, eventId: number, body: string) {
+    const result: any = {};
+
+    try {
+      const permission = await Database.canPost(userId, eventId);
+      if (permission) {
+        const row = await Database.createPost(eventId, permission.society_id, body);
+        result.status = 1;
+        result.body = {
+          id: row.post_id,
+          event: row.event_id,
+          organiser: {
+            id: permission.society_id,
+            name: permission.society_name,
+            short: permission.short_name,
+            image: permission.society_image_src
+          },
+          time: row.post_time,
+          body: row.body
+        };
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you do not have permission to post to this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
   static async goingStatus(userId: number, eventId: number) {
     const result = await Database.goingStatus(userId, eventId);
 
