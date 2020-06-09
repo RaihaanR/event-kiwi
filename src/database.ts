@@ -364,5 +364,55 @@ export default class Database {
   static async deletePost(postId: number): Promise<null> {
     return db.none(eventSQL.postDelete, {pid: postId});
   }
+
+  static async createEvent(societyId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      sid: societyId,
+      img: img,
+      priv: privacy
+    };
+
+    const row = await db.one(eventSQL.createEvent, values);
+
+    const tagValues = {
+      eid: row.event_id,
+      tags: tags
+    }
+
+    await db.none(eventSQL.createEventTags, tagValues);
+
+    return row;
+  }
+
+  static async editEvent(eventId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      img: img,
+      priv: privacy
+    };
+
+    await db.none(eventSQL.editEvent, values);
+
+    const tagValues = {
+      eid: eventId,
+      tags: tags
+    }
+
+    return db.none(eventSQL.editEventTags, tagValues);
+  }
+
+  static async getSocietyOwner(societyId: number): Promise<any> {
+    return db.one(societySQL.getOwner, {sid: societyId});
+  }
 }
 
