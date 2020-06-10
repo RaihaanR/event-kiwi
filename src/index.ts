@@ -119,11 +119,13 @@ app.post('/events/create', async (req, res) => {
 });
 
 app.get('/events/cards/all', async (req, res) => {
-  try {
-    res.send(await Database.getAllEventCardDetails());
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send('Invalid token');
+  } else {
+    res.send(await Database.getRelevantEventCards(userId, +req.query.n));
   }
 });
 
