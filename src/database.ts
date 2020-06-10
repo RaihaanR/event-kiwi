@@ -414,5 +414,23 @@ export default class Database {
   static async getSocietyOwner(societyId: number): Promise<any> {
     return db.one(societySQL.getOwner, {sid: societyId});
   }
+
+  static async eventContainsFile(eventId: number, key: string): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.oneOrNone("SELECT * FROM events_files INNER JOIN files USING (file_id) WHERE events_files.event_id = ${eid} AND files.bucket_key = ${key}", values);
+  }
+
+  static async addFileToEvent(eventId: number, key: string): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.oneOrNone("INSERT INTO events_files (event_id, file_id) SELECT ${eid}, files.file_id FROM files WHERE files.bucket_key = ${key} RETURNING *", values);
+  }
 }
 
