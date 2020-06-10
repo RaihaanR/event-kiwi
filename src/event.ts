@@ -24,37 +24,19 @@ export default class Event {
     return result;
   }
 
-  static async modifyFile(eventId: number, key: string, userId: number, add: boolean) {
+  static async modifyFile(eventId: number, files: string[], userId: number, add: boolean) {
     const result: any = {};
 
     try {
       const permission = await Database.canPost(userId, eventId);
       if (permission) {
-        const contains = await Database.eventContainsFile(eventId, key);
         if (add) {
-          if (contains) {
-            result.status = 0;
-            result.body = "ERROR: file is already used in this event"
-          } else {
-            const entry = await Database.addFileToEvent(eventId, key);
-            if (entry) {
-              result.status = 1;
-              result.body = await Event.getDetails(eventId, userId);
-            } else {
-              result.status = 0;
-              result.body = "ERROR: file key does not exist"
-            }
-          }
+          await Database.addFileToEvent(eventId, files);
         } else {
-          if (contains) {
-            await Database.removeFileFromEvent(eventId, key);
-            result.status = 1;
-            result.body = await Event.getDetails(eventId, userId);
-          } else {
-            result.status = 0;
-            result.body = "ERROR: file is not used in this event"
-          }
+          await Database.removeFileFromEvent(eventId, files);
         }
+        result.status = 1;
+        result.body = await Event.getDetails(eventId, userId);
       } else {
         result.status = 0;
         result.body = "ERROR: you do not have permission to modify files on this event";

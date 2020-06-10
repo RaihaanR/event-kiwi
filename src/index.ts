@@ -232,25 +232,25 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
-app.get('/file/add/:eventId/:key', async (req, res) => {
+app.post('/file/add/:eventId', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send("Invalid token");
   } else {
-    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, true));
+    res.send(await Event.modifyFile(+req.params.eventId, req.body.files, userId, true));
   }
 });
 
-app.get('/file/remove/:eventId/:key', async (req, res) => {
+app.post('/file/remove/:eventId', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send("Invalid token");
   } else {
-    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, false));
+    res.send(await Event.modifyFile(+req.params.eventId, req.body.files, userId, false));
   }
 });
 

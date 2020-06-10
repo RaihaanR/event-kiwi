@@ -439,19 +439,19 @@ export default class Database {
     return db.oneOrNone(eventSQL.fileCheck, values);
   }
 
-  static async addFileToEvent(eventId: number, key: string): Promise<any | null> {
+  static async addFileToEvent(eventId: number, keys: string[]): Promise<null> {
     const values = {
       eid: eventId,
-      key: key
+      keys: keys
     };
 
-    return db.oneOrNone(eventSQL.fileAdd, values);
+    return db.none(eventSQL.fileAdd, values);
   }
 
-  static async removeFileFromEvent(eventId: number, key: string): Promise<null> {
+  static async removeFileFromEvent(eventId: number, keys: string[]): Promise<null> {
     const values = {
       eid: eventId,
-      key: key
+      keys: keys
     };
 
     return db.none(eventSQL.fileRemove, values);
