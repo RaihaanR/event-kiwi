@@ -421,7 +421,7 @@ export default class Database {
       key: key
     };
 
-    return db.oneOrNone("SELECT * FROM events_files INNER JOIN files USING (file_id) WHERE events_files.event_id = ${eid} AND files.bucket_key = ${key}", values);
+    return db.oneOrNone(eventSQL.fileCheck, values);
   }
 
   static async addFileToEvent(eventId: number, key: string): Promise<any | null> {
@@ -430,7 +430,7 @@ export default class Database {
       key: key
     };
 
-    return db.oneOrNone("INSERT INTO events_files (event_id, file_id) SELECT ${eid}, files.file_id FROM files WHERE files.bucket_key = ${key} RETURNING *", values);
+    return db.oneOrNone(eventSQL.fileAdd, values);
   }
 
   static async removeFileFromEvent(eventId: number, key: string): Promise<null> {
@@ -439,7 +439,7 @@ export default class Database {
       key: key
     };
 
-    return db.none("DELETE FROM events_files WHERE event_id = ${eid} AND file_id IN (SELECT file_id FROM files WHERE bucket_key = ${key})", values);
+    return db.none(eventSQL.fileRemove, values);
   }
 }
 
