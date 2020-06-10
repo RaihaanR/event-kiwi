@@ -26,7 +26,8 @@ export const event = {
   editEventTags: sql('../sql/event/editEventTags.sql'),
   fileCheck: sql('../sql/event/fileCheck.sql'),
   fileAdd: sql('../sql/event/fileAdd.sql'),
-  fileRemove: sql('../sql/event/fileRemove.sql')
+  fileRemove: sql('../sql/event/fileRemove.sql'),
+  deleteEvent: sql('../sql/event/deleteEvent.sql')
 };
 
 export const society = {
