@@ -15,7 +15,7 @@ export const event = {
   goingStatus: sql('../sql/event/goingStatus.sql'),
   setStatus: sql('../sql/event/setStatus.sql'),
   calendarListing: sql('../sql/event/calendarListing.sql'),
-  postListing: sql('../sql/event/postListing.sql')
+  postListing: sql('../sql/event/postListing.sql'),
 };
 
 export const society = {
@@ -23,7 +23,7 @@ export const society = {
   findSocietyEventCards: sql('../sql/society/societyEventCards.sql'),
   excludeEventCondition: sql('../sql/society/excludeEventCondition.sql'),
   findSocietyFiles: sql('../sql/society/societyFiles.sql'),
-  searchSocieties: sql('../sql/society/searchSocieties.sql')
+  searchSocieties: sql('../sql/society/searchSocieties.sql'),
 };
 
 export const file = {
@@ -31,7 +31,7 @@ export const file = {
   findFileName: sql('../sql/file/fileName.sql'),
   insertNewFile: sql('../sql/file/newFile.sql'),
   checkDeletion: sql('../sql/file/checkDeletion.sql'),
-  deleteFile: sql('../sql/file/deleteFile.sql')
+  deleteFile: sql('../sql/file/deleteFile.sql'),
 };
 
 export const auth = {
@@ -44,7 +44,7 @@ export const auth = {
   updateUser: sql('../sql/auth/updateUser.sql'),
   findUserByAuthId: sql('../sql/auth/userByAuthId.sql'),
   findUserByUserId: sql('../sql/auth/userByUserId.sql'),
-  findUserByToken: sql('../sql/auth/userFromToken.sql')
+  findUserByToken: sql('../sql/auth/userFromToken.sql'),
 };
 
 export const profile = {
@@ -54,6 +54,7 @@ export const profile = {
   deleteInterest: sql('../sql/profile/deleteInterest.sql'),
   setSocietyStatus: sql('../sql/profile/societyStatus.sql'),
   countInterested: sql('../sql/profile/searchInterested.sql'),
-  getSocietyFromOwner: sql('../sql/profile/societyFromUser.sql')
+  getSocietyFromOwner: sql('../sql/profile/societyFromUser.sql'),
+  findRelevantEventsCards: sql('../sql/profile/relevantEventCards.sql'),
 };
 
