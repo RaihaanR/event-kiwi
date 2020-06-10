@@ -219,6 +219,28 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
+app.get('/file/add/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, true));
+  }
+});
+
+app.get('/file/remove/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, false));
+  }
+});
+
 app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res, "files");
 });
@@ -284,12 +306,20 @@ app.post('/img/upload', async (req, res) => {
   }
 });
 
-app.get('/file/list/:societyId', async (req, res) => {
-  try {
-    res.send(await Database.getFilesBySociety(+req.params.societyId));
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+app.get('/file/list', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      res.send(await Database.getFilesBySociety(societyId));
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
   }
 });
 

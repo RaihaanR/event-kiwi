@@ -414,5 +414,32 @@ export default class Database {
   static async getSocietyOwner(societyId: number): Promise<any> {
     return db.one(societySQL.getOwner, {sid: societyId});
   }
+
+  static async eventContainsFile(eventId: number, key: string): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.oneOrNone(eventSQL.fileCheck, values);
+  }
+
+  static async addFileToEvent(eventId: number, key: string): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.oneOrNone(eventSQL.fileAdd, values);
+  }
+
+  static async removeFileFromEvent(eventId: number, key: string): Promise<null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.none(eventSQL.fileRemove, values);
+  }
 }
 
