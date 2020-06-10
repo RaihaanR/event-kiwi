@@ -51,6 +51,21 @@ export default class Database {
     return cards;
   }
 
+  static async getRelevantEventCards(userId: number, offset: number): Promise<any[]> {
+    const values = {
+      user_id: userId,
+      offset: offset,
+    };
+
+    const cards = await db.any(profileSQL.findRelevantEventsCards, values);
+
+    for (let i = 0; i < cards.length; i++) {
+      this.mergeSocietyDetails(cards[i]);
+    }
+
+    return cards;
+  }
+
   static getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
     const condition = pgp.as.format('WHERE society_id = ${society_id}', {society_id: societyId});
 
@@ -92,7 +107,7 @@ export default class Database {
     const values = {
       prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
       search_term: q.replace(/\s/gi, '|'),
-      offset: offset
+      offset: offset,
     };
 
     const cards = await db.any(eventSQL.searchEvents, values);
@@ -116,7 +131,7 @@ export default class Database {
 
     const values = {
       user_id: userId,
-      pattern: '%' + q + '%'
+      pattern: '%' + q + '%',
     };
 
     return db.any(societySQL.searchSocieties, values);
@@ -153,7 +168,7 @@ export default class Database {
       ft: fileTable,
       file_name: fileName,
       bucket_key: bucketKey,
-      society_id: societyId
+      society_id: societyId,
     };
 
     return db.none(fileSQL.insertNewFile, values);
@@ -172,7 +187,7 @@ export default class Database {
       auth_id: authId,
       first_name: firstName,
       surname: surname,
-      email: email
+      email: email,
     };
 
     return db.one(authSQL.insertNewUser, values);
@@ -182,7 +197,7 @@ export default class Database {
     const values = {
       auth_id: authId,
       first_name: firstName,
-      surname: surname
+      surname: surname,
     };
 
     return db.none(authSQL.updateUser, values);
@@ -208,7 +223,7 @@ export default class Database {
     const values = {
       token: token,
       user_id: userId,
-      access_token: bearer
+      access_token: bearer,
     };
 
     return db.none(authSQL.insertNewToken, values);
@@ -283,7 +298,7 @@ export default class Database {
     const values = {
       user_id: userId,
       event_id: eventId,
-      status: status
+      status: status,
     };
 
     return db.none(eventSQL.setStatus, values);
@@ -293,7 +308,7 @@ export default class Database {
     const values = {
       user_id: userId,
       society_id: societyId,
-      type: type
+      type: type,
     };
 
     return db.none(profileSQL.setSocietyStatus, values);
@@ -305,8 +320,8 @@ export default class Database {
 
   static async getEventPosts(eventId: number, start: number): Promise<any[] | null> {
     const values = {
-      eid: eventId,
-      start: start
+      event_id: eventId,
+      start: start,
     };
 
     return db.manyOrNone(eventSQL.postListing, values);
@@ -320,10 +335,10 @@ export default class Database {
     return db.oneOrNone(profileSQL.getSocietyFromOwner, {uid: userId});
   }
 
-  static async checkIfUserCanDelete(key: string, userId: number): Promise<any | null> {
+  static async checkIfUserCanDelete(bucketKey: string, userId: number): Promise<any | null> {
     const values = {
-      key: key,
-      uid: userId
+      bucket_key: bucketKey,
+      user_id: userId,
     };
 
     return db.oneOrNone(fileSQL.checkDeletion, values);
