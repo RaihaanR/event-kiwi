@@ -219,6 +219,28 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
+app.get('/file/add/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, true));
+  }
+});
+
+app.get('/file/remove/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, false));
+  }
+});
+
 app.get('/file/get/:key', (req, res) => {
   Bucket.downloadByKey(req, res, "files");
 });
