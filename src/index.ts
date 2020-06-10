@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import bodyParser from 'body-parser';
-import fileUpload, { UploadedFile } from 'express-fileupload'
+import fileUpload from 'express-fileupload'
 
 import Bucket from './bucket';
 import Database from './database';
@@ -62,6 +62,62 @@ app.get('/societies/:option/:societyId', async (req, res) => {
   }
 });
 
+app.post('/events/edit/:eventId', async (req, res) => {
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const name = req.body.name;
+    const location = req.body.location;
+    const desc = req.body.desc;
+    const privacy = req.body.privacy;
+    const tags = req.body.tags;
+    const start = new Date(req.body.start);
+    const end = new Date(req.body.end);
+    const img = req.body.img;
+    res.send(await Event.editEvent(userId, eventId, name, location, desc, privacy, tags, start, end, img));
+  }
+});
+
+app.get('/events/delete/:eventId', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.deleteEvent(+req.params.eventId, userId));
+  }
+})
+
+app.post('/events/create', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      const name = req.body.name;
+      const location = req.body.location;
+      const desc = req.body.desc;
+      const privacy = req.body.privacy;
+      const tags = req.body.tags;
+      const start = new Date(req.body.start);
+      const end = new Date(req.body.end);
+      const img = req.body.img;
+      res.send(await Event.createEvent(societyId, name, location, desc, privacy, tags, start, end, img));
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
+});
+
 app.get('/events/cards/all', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
@@ -78,19 +134,7 @@ app.get('/events/details/:eventId', async (req, res) => {
     const eventId = +req.params.eventId;
     const userId = await Auth.uidFromBearer(req.headers.authorization);
 
-    let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
-
-    const details = await Database.getEventDetails(eventId);
-    const all = await Database.getAllEventCardDetails();
-
-    details.resources = await Database.getFilesByEvent(eventId);
-    details.going_status = going;
-    details.similar_events = all.filter(e =>
-      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
-    );
-    details.posts = empty;
-
-    res.send(details);
+    res.send(await Event.getDetails(eventId, userId));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -123,6 +167,31 @@ app.get('/events/:option/:eventId', async (req, res) => {
     res.send('Success');
   }
 });
+
+app.post('/events/posts/:eventId/new', async (req, res) => {
+  const eventId = +req.params.eventId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const content = req.body.content;
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.putPost(userId, eventId, content));
+  }
+});
+
+app.get('/events/posts/delete/:postId', async (req, res) => {
+  const postId = +req.params.postId;
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.deletePost(userId, postId));
+  }
+})
 
 app.get('/events/posts/:eventId/:start', async (req, res) => {
   const eventId = +req.params.eventId;
@@ -163,8 +232,30 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
+app.get('/file/add/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, true));
+  }
+});
+
+app.get('/file/remove/:eventId/:key', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, false));
+  }
+});
+
 app.get('/file/get/:key', (req, res) => {
-  Bucket.downloadByKey(req, res);
+  Bucket.downloadByKey(req, res, "files");
 });
 
 app.get('/file/delete/:key', async (req, res) => {
@@ -192,7 +283,7 @@ app.post('/file/upload', async (req, res) => {
         res.send("No file included");
       } else {
         const file: any = req.files['upload'];
-        res.send(await Bucket.uploadFile(file.name, societyId, file.data));
+        res.send(await Bucket.uploadResource(file.name, societyId, file.data));
       }
     } else {
       res.status(403);
@@ -201,12 +292,47 @@ app.post('/file/upload', async (req, res) => {
   }
 });
 
-app.get('/file/list/:societyId', async (req, res) => {
-  try {
-    res.send(await Database.getFilesBySociety(+req.params.societyId));
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+app.get('/img/get/:key', (req, res) => {
+  Bucket.downloadByKey(req, res, "image_mirrors");
+});
+
+app.post('/img/upload', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      if (!req.files.upload) {
+        res.status(400);
+        res.send("No file included");
+      } else {
+        const file: any = req.files['upload'];
+        res.send(await Bucket.uploadImage(file.name, societyId, file.data));
+      }
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
+  }
+});
+
+app.get('/file/list', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    const societyId = await Profile.getSocietyFromOwner(userId);
+    if (societyId > 0) {
+      res.send(await Database.getFilesBySociety(societyId));
+    } else {
+      res.status(403);
+      res.send("Not a society");
+    }
   }
 });
 
@@ -343,7 +469,7 @@ app.get('/mirror/:name/:uri', (req, res) => {
     if (error || response.statusCode !== 200) {
       res.send('Error (' + error + ') . + response.statusCode + ');
     } else {
-      res.send(await Bucket.uploadFile(req.params.name, 0, body));
+      res.send(await Bucket.uploadResource(req.params.name, 0, body));
     }
   });
 });
