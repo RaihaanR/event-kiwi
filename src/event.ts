@@ -2,6 +2,28 @@ import Database from './database';
 
 export default class Event {
 
+  static async deleteEvent(eventId: number, userId: number) {
+    const result: any = {};
+
+    try {
+      const permission = await Database.canPost(userId, eventId);
+
+      if (permission) {
+        await Database.deleteEvent(eventId);
+        result.status = 1;
+        result.body = "Event deleted";
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you are not permitted to delete this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
   static async modifyFile(eventId: number, key: string, userId: number, add: boolean) {
     const result: any = {};
 

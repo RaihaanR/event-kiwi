@@ -441,5 +441,9 @@ export default class Database {
 
     return db.none(eventSQL.fileRemove, values);
   }
+
+  static async deleteEvent(eventId: number): Promise<null> {
+    return db.none(eventSQL.deleteEvent, {eid: eventId});
+  }
 }
 
