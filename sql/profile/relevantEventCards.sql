@@ -13,17 +13,22 @@ FROM
   INNER JOIN "societies" USING ("society_id")
   INNER JOIN (
     SELECT
-      "society_id",
+      "user_id",
+      "societies"."society_id",
       replace(array_to_string("tags", ' '), ' ', ' | ') AS "int_tags"
     FROM
       "memberships"
       INNER JOIN "interests" USING ("user_id")
-    WHERE
-      "user_id" = ${user_id}
-      AND "memberships"."type" > 0
+      RIGHT OUTER JOIN "societies" ON (
+        "memberships"."society_id" = "societies"."society_id"
+        AND "user_id" = ${user_id}
+      )
   ) AS "match" USING ("society_id")
 WHERE
   "end_datetime" > now()
 ORDER BY
-  ts_rank_cd(to_tsvector(array_to_string("tags", ' ')), to_tsquery("int_tags"), 8) DESC
+  CASE WHEN "user_id" IS NOT NULL
+    THEN ts_rank_cd(to_tsvector(array_to_string("tags", ' ')), to_tsquery("int_tags"), 8)
+    ELSE -1
+  END DESC
 LIMIT 18 OFFSET ${offset}
