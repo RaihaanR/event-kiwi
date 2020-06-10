@@ -1,4 +1,5 @@
 import Database from './database';
+import Profile from './profile';
 
 export default class Event {
 
@@ -23,10 +24,124 @@ export default class Event {
     }
   }
 
+  static async deletePost(userId: number, postId: number) {
+    const result: any = {};
+
+    try {
+      const permission = await Database.canDeletePost(userId, postId);
+
+      if (permission) {
+        await Database.deletePost(postId);
+        result.status = 1;
+        result.body = "Post deleted";
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you are not permitted to delete posts on this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
+  static async putPost(userId: number, eventId: number, body: string) {
+    const result: any = {};
+
+    try {
+      const permission = await Database.canPost(userId, eventId);
+      if (permission) {
+        const row = await Database.createPost(eventId, permission.society_id, body);
+        result.status = 1;
+        result.body = {
+          id: row.post_id,
+          event: row.event_id,
+          organiser: {
+            id: permission.society_id,
+            name: permission.society_name,
+            short: permission.short_name,
+            image: permission.society_image_src
+          },
+          time: row.post_time,
+          body: row.body
+        };
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you do not have permission to post to this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
   static async goingStatus(userId: number, eventId: number) {
     const result = await Database.goingStatus(userId, eventId);
 
-    return result ? result['status'] : 0;
+    const owner = await Database.canPost(userId, eventId);
+
+    if (owner) {
+      return 3;
+    } else {
+      return result ? result['status'] : 0;
+    }
+
+  }
+
+  static async createEvent(societyId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string) {
+    const result: any = {};
+
+    try {
+      const row = await Database.createEvent(societyId, name, location, desc, privacy, tags, start, end, img);
+      const owner = await Database.getSocietyOwner(societyId);
+      result.status = 1;
+      result.body = await Event.getDetails(row.event_id, owner.owner);
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
+  static async editEvent(userId: number, eventId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string) {
+    const result: any = {};
+
+    try {
+      const owner = await Database.canPost(userId, eventId);
+
+      if (owner) {
+        await Database.editEvent(eventId, name, location, desc, privacy, tags, start, end, img);
+        result.status = 1;
+        result.body = await Event.getDetails(eventId, userId);
+      } else {
+        result.status = 0;
+        result.body = "ERROR: you do not have permission to edit this event";
+      }
+    } catch (err) {
+      result.status = 0;
+      result.body = "ERROR: " + err;
+    }
+
+    return result;
+  }
+
+  static async getDetails(eventId: number, userId: number) {
+    let going = (userId === -1) ? -1 : await Event.goingStatus(userId, eventId);
+
+    const details = await Database.getEventDetails(eventId);
+    const all = await Database.getAllEventCardDetails();
+    details.resources = await Database.getFilesByEvent(eventId);
+    details.going_status = going;
+    details.similar_events = all.filter(e =>
+      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
+    );
+    details.posts = [];
+
+    return details
   }
 
   static async setStatus(userId: number, eventId: number, status: number) {

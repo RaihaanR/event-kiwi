@@ -122,8 +122,13 @@ export default class Database {
     return db.any(societySQL.searchSocieties, values);
   }
 
-  static async getFileName(bucketKey: string): Promise<any | null> {
-    return db.oneOrNone(fileSQL.findFileName, {bucket_key: bucketKey});
+  static async getFileName(bucketKey: string, fileTable: string): Promise<any | null> {
+    const values = {
+      ft: fileTable,
+      bucket_key: bucketKey
+    };
+
+    return db.oneOrNone(fileSQL.findFileName, values);
   }
 
   static async getFilesBySociety(societyId: number): Promise<any[]> {
@@ -134,12 +139,18 @@ export default class Database {
     return db.any(eventSQL.findEventFiles, {event_id: eventId});
   }
 
-  static async getFilesByIds(fileIds: number[]): Promise<any> {
-    return db.any(fileSQL.findFileDetails, {file_ids: fileIds});
+  static async getFilesByIds(fileIds: number[], fileTable: string): Promise<any> {
+    const values = {
+      ft: fileTable,
+      file_ids: fileIds
+    };
+
+    return db.any(fileSQL.findFileDetails, values);
   }
 
-  static async putFile(fileName: string, bucketKey: string, societyId: number) {
+  static async putFile(fileName: string, bucketKey: string, societyId: number, fileTable: string) {
     const values = {
+      ft: fileTable,
       file_name: fileName,
       bucket_key: bucketKey,
       society_id: societyId
@@ -320,6 +331,88 @@ export default class Database {
 
   static async deleteFileEntry(fileId: number) {
     return db.none(fileSQL.deleteFile, {fid: fileId});
+  }
+
+  static async canPost(userId: number, eventId: number): Promise<any | null> {
+    const values = {
+      eid: eventId,
+      uid: userId
+    }
+
+    return db.oneOrNone(eventSQL.postCreatePermission, values);
+  }
+
+  static async createPost(eventId: number, societyId: number, body: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      sid: societyId,
+      body: body
+    };
+
+    return db.one(eventSQL.postCreate, values);
+  }
+
+  static async canDeletePost(userId: number, postId: number): Promise<any | null> {
+    const values = {
+      uid: userId,
+      pid: postId
+    };
+
+    return db.oneOrNone(eventSQL.postDeletePermission, values);
+  }
+
+  static async deletePost(postId: number): Promise<null> {
+    return db.none(eventSQL.postDelete, {pid: postId});
+  }
+
+  static async createEvent(societyId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      sid: societyId,
+      img: img,
+      priv: privacy
+    };
+
+    const row = await db.one(eventSQL.createEvent, values);
+
+    const tagValues = {
+      eid: row.event_id,
+      tags: tags
+    }
+
+    await db.none(eventSQL.createEventTags, tagValues);
+
+    return row;
+  }
+
+  static async editEvent(eventId: number, name: string, location: string, desc: string, privacy: number, tags: string[], start: Date, end: Date, img: string): Promise<any> {
+    const values = {
+      eid: eventId,
+      name: name,
+      start: start,
+      end: end,
+      location: location,
+      desc: desc,
+      img: img,
+      priv: privacy
+    };
+
+    await db.none(eventSQL.editEvent, values);
+
+    const tagValues = {
+      eid: eventId,
+      tags: tags
+    }
+
+    return db.none(eventSQL.editEventTags, tagValues);
+  }
+
+  static async getSocietyOwner(societyId: number): Promise<any> {
+    return db.one(societySQL.getOwner, {sid: societyId});
   }
 }
 

@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk'
-import Crypto from 'crypto'
+import crypto from 'crypto'
 
 import Database from './database';
 
@@ -23,9 +23,9 @@ export default class Bucket {
     return bucketName;
   }
 
-  static async downloadByKey(req, res) {
+  static async downloadByKey(req, res, table) {
     const key = req.params.key;
-    const entry = await Database.getFileName(key);
+    const entry = await Database.getFileName(key, table);
 
     if (entry) {
       const params = {
@@ -82,13 +82,32 @@ export default class Bucket {
     return result;
   }
 
-  static async uploadFile(name, society, body) {
+  static async uploadResource(name, society, body) {
     const salted = Buffer.concat([body, Buffer.from(name + society.toString(), 'utf8')]);
-    const hash = Crypto.createHmac('sha256', salted).digest('hex');
+    const hash = crypto.createHmac('sha256', salted).digest('hex');
 
+    return await this.uploadFile(name, society, body, hash, "files");
+  }
+
+  static async uploadImage(name, society, body) {
+    let key = '';
+    let success = false;
+    while (!success) {
+      key = crypto.randomBytes(8).toString('hex');
+      const row = await Database.getFileName(key, "image_mirrors");
+
+      if (!row) {
+        success = true;
+      }
+    }
+
+    return await this.uploadFile(name, society, body, key, "image_mirrors");
+  }
+
+  static async uploadFile(name, society, body, key, table) {
     const params = {
       Bucket: bucketName,
-      Key: hash,
+      Key: key,
       Body: body
     };
 
@@ -96,16 +115,16 @@ export default class Bucket {
 
     try {
       await s3.putObject(params).promise();
-      let row = await Database.getFileName(hash);
+      let row = await Database.getFileName(key, table);
 
       if (row) {
         result.status = 0;
-        result.body = 'ERROR: hash already exists';
+        result.body = 'ERROR: key already exists';
       } else {
-        await Database.putFile(name, hash, society);
+        await Database.putFile(name, key, society, table);
 
         result.status = 1;
-        result.body = hash;
+        result.body = key;
       }
     } catch (err) {
       result.status = 0;
