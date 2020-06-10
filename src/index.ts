@@ -224,6 +224,15 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 });
 
 app.get('/events/search', async (req, res) => {
+  const search_options = {
+    general: req.query.q,
+    society_name: req.query.society_name,
+    tags: req.query.tags,
+    start: req.query.start,
+    end: req.query.end,
+    finished: req.query.finished,
+  };
+
   try {
     res.send(await Database.searchEvents(req.query.q, +req.query.n));
   } catch (err) {
