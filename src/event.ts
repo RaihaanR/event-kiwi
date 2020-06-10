@@ -2,24 +2,35 @@ import Database from './database';
 
 export default class Event {
 
-  static async addFile(eventId: number, key: string, userId: number) {
+  static async modifyFile(eventId: number, key: string, userId: number, add: boolean) {
     const result: any = {};
 
     try {
       const permission = await Database.canPost(userId, eventId);
       if (permission) {
         const contains = await Database.eventContainsFile(eventId, key);
-        if (contains) {
-          result.status = 0;
-          result.body = "ERROR: file is already used in this event"
+        if (add) {
+          if (contains) {
+            result.status = 0;
+            result.body = "ERROR: file is already used in this event"
+          } else {
+            const entry = await Database.addFileToEvent(eventId, key);
+            if (entry) {
+              result.status = 1;
+              result.body = await Event.getDetails(eventId, userId);
+            } else {
+              result.status = 0;
+              result.body = "ERROR: file key does not exist"
+            }
+          }
         } else {
-          const entry = await Database.addFileToEvent(eventId, key);
-          if (entry) {
+          if (contains) {
+            await Database.removeFileFromEvent(eventId, key);
             result.status = 1;
             result.body = await Event.getDetails(eventId, userId);
           } else {
             result.status = 0;
-            result.body = "ERROR: file key does not exist"
+            result.body = "ERROR: file is not used in this event"
           }
         }
       } else {

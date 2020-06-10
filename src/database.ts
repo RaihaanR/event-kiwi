@@ -432,5 +432,14 @@ export default class Database {
 
     return db.oneOrNone("INSERT INTO events_files (event_id, file_id) SELECT ${eid}, files.file_id FROM files WHERE files.bucket_key = ${key} RETURNING *", values);
   }
+
+  static async removeFileFromEvent(eventId: number, key: string): Promise<null> {
+    const values = {
+      eid: eventId,
+      key: key
+    };
+
+    return db.none("DELETE FROM events_files WHERE event_id = ${eid} AND file_id IN (SELECT file_id FROM files WHERE bucket_key = ${key})", values);
+  }
 }
 
