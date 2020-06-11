@@ -247,7 +247,7 @@ export default class Database {
                  .toLowerCase()
                  .trim();
 
-    if (t.length === 0) {
+    if (t.length === 0 || t.length > 32) {
       return;
     }
 
@@ -260,7 +260,7 @@ export default class Database {
                  .toLowerCase()
                  .trim();
 
-    if (t.length === 0) {
+    if (t.length === 0 || t.length > 32) {
       return;
     }
 
