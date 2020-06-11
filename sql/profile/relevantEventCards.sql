@@ -20,7 +20,7 @@ WHERE
 ORDER BY
   ts_rank_cd(
     to_tsvector(array_to_string("tags", ' ')),
-    to_tsquery(replace(array_to_string((SELECT "tags" FROM "interests" WHERE "user_id" = 1), ' '), ' ', ' | ')),
+    to_tsquery(replace(array_to_string((SELECT "tags" FROM "interests" WHERE "user_id" = ${user_id}), ' '), ' ', ' | ')),
     8
   ) DESC
 LIMIT 18 OFFSET ${offset}
