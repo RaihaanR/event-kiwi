@@ -136,7 +136,6 @@ export default class Database {
       const values = {};
 
       if (options.society_name.length > 0) {
-        console.log(options.society_name);
         values['name'] = options.society_name.replace(/\s/gi, ':*|') + ':*';
 
         condition += 'to_tsvector("society_name") @@ to_tsquery(${name}) ';
@@ -172,12 +171,12 @@ export default class Database {
         condition += '"end_datetime" <= ${end} ';
       }
 
-      if (options.finished) {
+      if (options.finished.length > 0) {
         if (condition.length > 0) {
           condition += 'AND ';
         }
 
-        condition += '"end_datetime" < now()';
+        condition += options.finished.toLowerCase() === 'true' ? '"end_datetime" < now()' : '"end_datetime" > now()';
       }
 
       condition = pgp.as.format(condition, values);
