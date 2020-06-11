@@ -1,6 +1,7 @@
 SELECT
   "files"."display_name",
   "files"."bucket_key",
+  "files"."download_count",
   COALESCE (
     json_agg(json_build_object(
       'id', "events"."event_id",
@@ -22,4 +23,5 @@ FROM
 GROUP BY
   "files"."display_name",
   "files"."file_id",
+  "files"."download_count",
   "files"."bucket_key"

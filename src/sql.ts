@@ -45,6 +45,7 @@ export const file = {
   insertNewFile: sql('../sql/file/newFile.sql'),
   checkDeletion: sql('../sql/file/checkDeletion.sql'),
   deleteFile: sql('../sql/file/deleteFile.sql'),
+  incrementDownload: sql('../sql/file/incrementCount.sql'),
 };
 
 export const auth = {
