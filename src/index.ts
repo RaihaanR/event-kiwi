@@ -336,7 +336,7 @@ app.get('/file/list', async (req, res) => {
   }
 });
 
-app.post('/auth/valid', async (req, res) => {
+app.get('/auth/valid', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
