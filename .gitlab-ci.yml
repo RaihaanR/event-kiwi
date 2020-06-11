@@ -6,6 +6,11 @@ cache:
     - .npm/
   policy: pull-push
 
+.patch:
+  except:
+    variables:
+      $CI_COMMIT_REF_NAME: =~ /(.*?)_patch/
+
 stages:
   - build
   - internal
@@ -16,6 +21,7 @@ before_script:
   - npm ci --cache .npm
 
 build:
+  extends: .patch
   stage: build
   cache:
     policy: pull
@@ -26,6 +32,7 @@ build:
       - dist/
 
 test authentication:
+  extends: .patch
   stage: internal
   cache:
     policy: pull
@@ -36,6 +43,7 @@ test authentication:
     - staging
 
 test profile:
+  extends: .patch
   stage: internal
   cache:
     policy: pull
@@ -46,6 +54,7 @@ test profile:
     - staging
 
 test event:
+  extends: .patch
   stage: internal
   cache:
     policy: pull
@@ -56,6 +65,7 @@ test event:
     - staging
 
 test database:
+  extends: .patch
   stage: external
   cache:
     policy: pull
@@ -66,6 +76,7 @@ test database:
     - staging
 
 test aws:
+  extends: .patch
   stage: external
   cache:
     policy: pull
