@@ -117,23 +117,75 @@ export default class Database {
 
     if (options.general.length > 0) {
       const base_pattern = options.general.replace(/\s/gi, '% ') + '%';
-      const prefix_pattern = options.general.replace(/\s/gi, ':*|') + ':*';
-      const pattern = ['% ' + base_pattern, base_pattern];
-      const search_term = options.general.replace(/\s/gi, '|');
+      const values = {
+        prefix_pattern: options.general.replace(/\s/gi, ':*|') + ':*',
+        pattern: ['% ' + base_pattern, base_pattern],
+        search_term: options.general.replace(/\s/gi, '|'),
+      };
 
-      condition += '"end_datetime" > now() AND (';
-      condition += '"event_name" ILIKE ANY(${pattern}) OR ';
+      condition += '("event_name" ILIKE ANY(${pattern}) OR ';
       condition += '"society_name" ILIKE ANY(${pattern}) OR ';
       condition += '"short_name" ILIKE ANY(${pattern}) OR ';
-      condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${search_term})';
-      condition += ') ORDER BY (';
+      condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${search_term})) ';
+
+      if (options.start.length > 0) {
+        try {
+          values['start'] = new Date(options.start).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"start_datetime" >= ${start} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.end.length > 0) {
+        try {
+          values['end'] = new Date(options.end).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"end_datetime" <= ${end} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.finished.length > 0) {
+        const lower = options.finished.toLowerCase();
+
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        if (lower === 'true') {
+          condition += '"end_datetime" < now()';
+        } else if (lower === 'false') {
+          condition += '"end_datetime" > now()';
+        } else {
+          return [];
+        }
+      } else {
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += '"end_datetime" > now()';
+      }
+
+      condition += ' ORDER BY (';
       condition += 'ts_rank_cd(to_tsvector("event_name"), to_tsquery(${prefix_pattern}), 16) + ';
       condition += 'ts_rank_cd(to_tsvector("society_name"), to_tsquery(${prefix_pattern})) + ';
       condition += 'ts_rank_cd(to_tsvector("short_name"), to_tsquery(${prefix_pattern})) + ';
       condition += 'ts_rank_cd(to_tsvector(array_to_string("tags", \' \')), to_tsquery(${search_term}), 8)';
       condition += ') DESC';
 
-      condition = pgp.as.format(condition, {prefix_pattern: prefix_pattern, pattern: pattern, search_term: search_term});
+      condition = pgp.as.format(condition, values);
     } else {
       const values = {};
 
@@ -196,6 +248,12 @@ export default class Database {
         } else {
           return [];
         }
+      } else {
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += '"end_datetime" > now()';
       }
 
       condition = pgp.as.format(condition, values);
