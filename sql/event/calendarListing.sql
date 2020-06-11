@@ -19,6 +19,15 @@ FROM
             "user_id" = ${uid} AND
             "type" > 0
         )
+      OR "societies"."society_id" IN
+        (
+          SELECT
+            "society_id"
+          FROM
+            "societies"
+          WHERE
+            "owner" = ${uid}
+        )
       OR "events"."event_id" IN
         (
           SELECT
