@@ -117,12 +117,13 @@ export default class Database {
 
     if (options.general.length > 0) {
       const prefix_pattern = options.general.replace(/\s/gi, ':*|') + ':*';
+      const pattern = '% ' + options.general.replace(/\s/gi, '% ') + '%';
       const search_term = options.general.replace(/\s/gi, '|');
 
       condition += '"end_datetime" > now() AND (';
-      condition += 'to_tsvector("event_name") @@ to_tsquery(${prefix_pattern}) OR ';
-      condition += 'to_tsvector("society_name") @@ to_tsquery(${prefix_pattern}) OR ';
-      condition += 'to_tsvector("short_name") @@ to_tsquery(${prefix_pattern}) OR ';
+      condition += '"event_name" ILIKE ${pattern} OR ';
+      condition += '"society_name" ILIKE ${pattern} OR ';
+      condition += '"short_name" ILIKE ${pattern} OR ';
       condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${search_term})';
       condition += ') ORDER BY (';
       condition += 'ts_rank_cd(to_tsvector("event_name"), to_tsquery(${prefix_pattern}), 16) + ';
@@ -131,7 +132,8 @@ export default class Database {
       condition += 'ts_rank_cd(to_tsvector(array_to_string("tags", \' \')), to_tsquery(${search_term}), 8)';
       condition += ') DESC';
 
-      condition = pgp.as.format(condition, {prefix_pattern: prefix_pattern, search_term: search_term});
+      condition = pgp.as.format(condition, {prefix_pattern: prefix_pattern, pattern: pattern, search_term: search_term});
+      console.log(condition);
     } else {
       const values = {};
 
