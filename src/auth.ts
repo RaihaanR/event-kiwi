@@ -79,7 +79,7 @@ export default class Auth {
             firstname: user['givenName'],
             surname: user['surname'],
             email: user['mail'],
-            society: await Profile.getSocietyFromOwner(row['user_id'])
+            society: String(await Profile.getSocietyFromOwner(row['user_id']))
           }
         }
       };
