@@ -14,6 +14,8 @@ const dbOptions = {
 const pgp = pgPromise();
 const db = pgp(dbOptions);
 
+const escapeRegex = /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi;
+
 export default class Database {
 
   private static mergeSocietyDetails(details: object): void {
@@ -95,12 +97,9 @@ export default class Database {
   }
 
   static async searchEvents(query: any, offset: number): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+    const q = decodeURIComponent(query);
 
-    if (q.length === 0) {
+    if (q.length === 0 || escapeRegex.test(q)) {
       return [];
     }
 
@@ -120,12 +119,9 @@ export default class Database {
   }
 
   static async searchSocieties(query: any, userId: number): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+    const q = decodeURIComponent(query);
 
-    if (q.length === 0) {
+    if (q.length === 0 || escapeRegex.test(q)) {
       return [];
     }
 
@@ -242,16 +238,9 @@ export default class Database {
   }
 
   static async addInterest(userId: number, tag: string): Promise<null> {
-    if (tag.length > 32) {
-      return;
-    }
+    const t = decodeURIComponent(tag);
 
-    const t = tag.replace(/(%20)+/g, ' ')
-                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                 .toLowerCase()
-                 .trim();
-
-    if (t.length === 0 || t.length > 32) {
+    if (t.length === 0 || t.length > 32 || escapeRegex.test(t)) {
       return;
     }
 
@@ -259,16 +248,9 @@ export default class Database {
   }
 
   static async removeInterest(userId: number, tag: string): Promise<null> {
-    if (tag.length > 32) {
-      return;
-    }
+    const t = decodeURIComponent(tag);
 
-    const t = tag.replace(/(%20)+/g, ' ')
-                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                 .toLowerCase()
-                 .trim();
-
-    if (t.length === 0 || t.length > 32) {
+    if (t.length === 0 || t.length > 32 || escapeRegex.test(t)) {
       return;
     }
 
@@ -276,12 +258,9 @@ export default class Database {
   }
   
   static async countInterested(userId: number, query: any): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+    const q = decodeURIComponent(query);
 
-    if (q.length === 0) {
+    if (q.length === 0 || escapeRegex.test(q)) {
       return [];
     }
 
