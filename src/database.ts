@@ -116,14 +116,15 @@ export default class Database {
     let cards = [];
 
     if (options.general.length > 0) {
+      const base_pattern = options.general.replace(/\s/gi, '% ') + '%';
       const prefix_pattern = options.general.replace(/\s/gi, ':*|') + ':*';
-      const pattern = '% ' + options.general.replace(/\s/gi, '% ') + '%';
+      const pattern = ['% ' + base_pattern, base_pattern];
       const search_term = options.general.replace(/\s/gi, '|');
 
       condition += '"end_datetime" > now() AND (';
-      condition += '"event_name" ILIKE ${pattern} OR ';
-      condition += '"society_name" ILIKE ${pattern} OR ';
-      condition += '"short_name" ILIKE ${pattern} OR ';
+      condition += '"event_name" ILIKE ANY(${pattern}) OR ';
+      condition += '"society_name" ILIKE ANY(${pattern}) OR ';
+      condition += '"short_name" ILIKE ANY(${pattern}) OR ';
       condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${search_term})';
       condition += ') ORDER BY (';
       condition += 'ts_rank_cd(to_tsvector("event_name"), to_tsquery(${prefix_pattern}), 16) + ';
@@ -138,9 +139,10 @@ export default class Database {
       const values = {};
 
       if (options.society_name.length > 0) {
-        values['name'] = '% ' + options.society_name.replace(/\s/gi, '% ') + '%';
+        const base_name = options.society_name.replace(/\s/gi, '% ') + '%';
+        values['name'] = ['% ' + base_name, base_name];
 
-        condition += '"society_name" ILIKE ${name} ';
+        condition += '"society_name" ILIKE ANY(${name}) ';
       }
 
       if (options.tags.length > 0) {
