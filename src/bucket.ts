@@ -138,7 +138,10 @@ export default class Bucket {
         await Database.putFile(name, key, society, table);
 
         result.status = 1;
-        result.body = key;
+        result.body = {
+          key: key,
+          name: name
+        };
       }
     } catch (err) {
       result.status = 0;
