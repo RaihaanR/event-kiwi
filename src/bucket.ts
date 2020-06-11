@@ -39,7 +39,18 @@ export default class Bucket {
         if (table === "files") {
           await Database.incrementDownload(key);
         }
-        res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
+        if (table === "files") {
+          res.contentType("application/octet-stream");
+          res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
+        } else {
+          const name: string = entry.display_name;
+          let ext = name.substr(name.lastIndexOf('.') + 1);
+          if (ext === "svg") {
+            ext = "svg+xml";
+          }
+          res.contentType("image/" + ext);
+          res.setHeader('content-disposition', 'inline');
+        }
         res.send(data.Body);
       } catch (err) {
         res.send('Unable to access file');
