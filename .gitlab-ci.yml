@@ -9,7 +9,7 @@ cache:
 .patch:
   except:
     variables:
-      - $CI_COMMIT_REF_NAME: =~ /(.*?)_patch/
+      - $CI_COMMIT_REF_NAME =~ /(.*?)_patch/
 
 stages:
   - build
