@@ -225,16 +225,17 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 
 app.get('/events/search', async (req, res) => {
   const search_options = {
-    general: req.query.q,
-    society_name: req.query.society_name,
-    tags: req.query.tags,
-    start: req.query.start,
-    end: req.query.end,
-    finished: req.query.finished,
+    general: req.query.q !== undefined ? req.query.q : '',
+    society_name: req.query.society_name !== undefined ? req.query.society_name : '',
+    tags: req.query.tags !== undefined ? req.query.tags : '',
+    start: req.query.start !== undefined ? req.query.start : '',
+    end: req.query.end !== undefined ? req.query.end : '',
+    finished: req.query.finished !== undefined ? req.query.finished : '',
+    offset: req.query.n,
   };
 
   try {
-    res.send(await Database.searchEvents(req.query.q, +req.query.n));
+    res.send(await Database.searchEvents(search_options));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
