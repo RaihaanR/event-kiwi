@@ -231,10 +231,12 @@ app.get('/events/search', async (req, res) => {
     start: req.query.start,
     end: req.query.end,
     finished: req.query.finished,
+    offset: req.query.n,
   };
 
   try {
-    res.send(await Database.searchEvents(req.query.q, +req.query.n));
+    /* res.send(await Database.searchEvents(req.query.q, +req.query.n)); */
+    res.send(await Database.searchEvents(search_options));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
