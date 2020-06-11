@@ -8,8 +8,8 @@ cache:
 
 .patch:
   except:
-    - staging
     variables:
+      - $CI_COMMIT_REF_NAME =~ /staging/
       - $CI_COMMIT_REF_NAME =~ /(.*?)_patch/
 
 stages:
