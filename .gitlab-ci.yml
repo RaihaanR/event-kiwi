@@ -22,7 +22,6 @@ before_script:
   - npm ci --cache .npm
 
 build:
-  extends: .patch
   stage: build
   cache:
     policy: pull
