@@ -8,5 +8,5 @@ WHERE
     FROM
       "files"
     WHERE
-      "bucket_key" = ${key}
+      "bucket_key" IN (${keys:csv})
   )

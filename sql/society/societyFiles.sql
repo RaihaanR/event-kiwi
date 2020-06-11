@@ -1,7 +1,27 @@
 SELECT
-  "display_name",
-  "bucket_key"
+  "files"."display_name",
+  "files"."bucket_key",
+  "files"."download_count",
+  COALESCE (
+    json_agg(json_build_object(
+      'id', "events"."event_id",
+      'name', "events"."event_name"
+    )) FILTER (WHERE "events"."event_id" IS NOT NULL),
+    '[]'
+  ) AS "events"
 FROM
-  "files"
-WHERE
-  "society_id" = ${society_id}
+  (SELECT
+    *
+  FROM
+    "files"
+  WHERE
+    "society_id" = ${society_id}) AS "files"
+  LEFT OUTER JOIN (
+    "events_files"
+    INNER JOIN "events" USING ("event_id")
+  ) USING ("file_id")
+GROUP BY
+  "files"."display_name",
+  "files"."file_id",
+  "files"."download_count",
+  "files"."bucket_key"

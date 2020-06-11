@@ -9,6 +9,4 @@ SELECT
 FROM
   "files"
 WHERE
-  "files"."bucket_key" = ${key}
-RETURNING
-  *
+  "files"."bucket_key" IN (${keys:csv})

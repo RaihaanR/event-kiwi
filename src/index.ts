@@ -82,6 +82,17 @@ app.post('/events/edit/:eventId', async (req, res) => {
   }
 });
 
+app.get('/events/delete/:eventId', async (req, res) => {
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send("Invalid token");
+  } else {
+    res.send(await Event.deleteEvent(+req.params.eventId, userId));
+  }
+})
+
 app.post('/events/create', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
@@ -108,11 +119,13 @@ app.post('/events/create', async (req, res) => {
 });
 
 app.get('/events/cards/all', async (req, res) => {
-  try {
-    res.send(await Database.getAllEventCardDetails());
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
+
+  if (userId === -1) {
+    res.status(403);
+    res.send('Invalid token');
+  } else {
+    res.send(await Database.getRelevantEventCards(userId, +req.query.n));
   }
 });
 
@@ -211,6 +224,15 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 });
 
 app.get('/events/search', async (req, res) => {
+  const search_options = {
+    general: req.query.q,
+    society_name: req.query.society_name,
+    tags: req.query.tags,
+    start: req.query.start,
+    end: req.query.end,
+    finished: req.query.finished,
+  };
+
   try {
     res.send(await Database.searchEvents(req.query.q, +req.query.n));
   } catch (err) {
@@ -219,25 +241,25 @@ app.get('/events/search', async (req, res) => {
   }
 });
 
-app.get('/file/add/:eventId/:key', async (req, res) => {
+app.post('/file/add/:eventId', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send("Invalid token");
   } else {
-    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, true));
+    res.send(await Event.modifyFile(+req.params.eventId, req.body.files, userId, true));
   }
 });
 
-app.get('/file/remove/:eventId/:key', async (req, res) => {
+app.post('/file/remove/:eventId', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   if (userId === -1) {
     res.status(403);
     res.send("Invalid token");
   } else {
-    res.send(await Event.modifyFile(+req.params.eventId, req.params.key, userId, false));
+    res.send(await Event.modifyFile(+req.params.eventId, req.body.files, userId, false));
   }
 });
 
