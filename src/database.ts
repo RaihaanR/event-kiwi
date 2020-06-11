@@ -119,7 +119,7 @@ export default class Database {
       const base_pattern = options.general.replace(/\s/gi, '% ') + '%';
       const prefix_pattern = options.general.replace(/\s/gi, ':*|') + ':*';
       const pattern = ['% ' + base_pattern, base_pattern];
-      const search_term = options.general.replace(/\s/gi, '&');
+      const search_term = options.general.replace(/\s/gi, '|');
 
       condition += '"end_datetime" > now() AND (';
       condition += '"event_name" ILIKE ANY(${pattern}) OR ';
@@ -145,7 +145,7 @@ export default class Database {
       }
 
       if (options.tag.length > 0) {
-        values['tag'] = options.tag.replace(/\s/gi, '&');
+        values['tag'] = options.tag.replace(/\s/gi, '|');
 
         if (condition.length > 0) {
           condition += 'AND ';
