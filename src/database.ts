@@ -100,7 +100,7 @@ export default class Database {
     const options = {
       general: decodeURIComponent(search_options.general),
       society_name: decodeURIComponent(search_options.society_name),
-      tags: decodeURIComponent(search_options.tags),
+      tag: decodeURIComponent(search_options.tag),
       start: decodeURIComponent(search_options.start),
       end: decodeURIComponent(search_options.end),
       finished: decodeURIComponent(search_options.finished),
@@ -108,7 +108,7 @@ export default class Database {
     };
 
     if (escapeRegex.test(options.general) || escapeRegex.test(options.society_name) ||
-        escapeRegex.test(options.tags)) {
+        escapeRegex.test(options.tag)) {
       return [];
     }
 
@@ -134,7 +134,6 @@ export default class Database {
       condition += ') DESC';
 
       condition = pgp.as.format(condition, {prefix_pattern: prefix_pattern, pattern: pattern, search_term: search_term});
-      console.log(condition);
     } else {
       const values = {};
 
@@ -145,45 +144,65 @@ export default class Database {
         condition += '"society_name" ILIKE ANY(${name}) ';
       }
 
-      if (options.tags.length > 0) {
-        values['tags'] = options.tags.replace(/\s/gi, '|');
+      if (options.tag.length > 0) {
+        values['tag'] = options.tag.replace(/\s/gi, '|');
 
         if (condition.length > 0) {
           condition += 'AND ';
         }
 
-        condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${tags}) ';
+        condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${tag}) ';
       }
 
       if (options.start.length > 0) {
-        values['start'] = new Date(options.start).toISOString();
+        try {
+          values['start'] = new Date(options.start).toISOString();
 
-        if (condition.length > 0) {
-          condition += 'AND ';
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"start_datetime" >= ${start} ';
+        } catch {
+          return [];
         }
-
-        condition += '"start_datetime" >= ${start} ';
       }
 
       if (options.end.length > 0) {
-        values['end'] = new Date(options.end).toISOString();
+        try {
+          values['end'] = new Date(options.end).toISOString();
 
-        if (condition.length > 0) {
-          condition += 'AND ';
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"end_datetime" <= ${end} ';
+        } catch {
+          return [];
         }
-
-        condition += '"end_datetime" <= ${end} ';
       }
 
       if (options.finished.length > 0) {
+        const lower = options.finished.toLowerCase();
+
         if (condition.length > 0) {
           condition += 'AND ';
         }
 
-        condition += options.finished.toLowerCase() === 'true' ? '"end_datetime" < now()' : '"end_datetime" > now()';
+        if (lower === 'true') {
+          condition += '"end_datetime" < now()';
+        } else if (lower === 'false') {
+          condition += '"end_datetime" > now()';
+        } else {
+          return [];
+        }
       }
 
       condition = pgp.as.format(condition, values);
+    }
+
+    if (condition.length === 0) {
+      return [];
     }
 
     cards = await db.any(eventSQL.searchEvents, {condition: condition, offset: options.offset});

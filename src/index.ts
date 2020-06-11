@@ -227,7 +227,7 @@ app.get('/events/search', async (req, res) => {
   const search_options = {
     general: req.query.q !== undefined ? req.query.q : '',
     society_name: req.query.society_name !== undefined ? req.query.society_name : '',
-    tags: req.query.tags !== undefined ? req.query.tags : '',
+    tag: req.query.tag !== undefined ? req.query.tag : '',
     start: req.query.start !== undefined ? req.query.start : '',
     end: req.query.end !== undefined ? req.query.end : '',
     finished: req.query.finished !== undefined ? req.query.finished : '',
