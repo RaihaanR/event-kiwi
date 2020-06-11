@@ -138,9 +138,9 @@ export default class Database {
       const values = {};
 
       if (options.society_name.length > 0) {
-        values['name'] = options.society_name.replace(/\s/gi, ':*|') + ':*';
+        values['name'] = '% ' + options.society_name.replace(/\s/gi, '% ') + '%';
 
-        condition += 'to_tsvector("society_name") @@ to_tsquery(${name}) ';
+        condition += '"society_name" ILIKE ${name} ';
       }
 
       if (options.tags.length > 0) {
