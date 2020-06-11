@@ -242,12 +242,16 @@ export default class Database {
   }
 
   static async addInterest(userId: number, tag: string): Promise<null> {
+    if (tag.length > 32) {
+      return;
+    }
+
     const t = tag.replace(/(%20)+/g, ' ')
                  .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
                  .toLowerCase()
                  .trim();
 
-    if (t.length === 0) {
+    if (t.length === 0 || t.length > 32) {
       return;
     }
 
@@ -255,12 +259,16 @@ export default class Database {
   }
 
   static async removeInterest(userId: number, tag: string): Promise<null> {
+    if (tag.length > 32) {
+      return;
+    }
+
     const t = tag.replace(/(%20)+/g, ' ')
                  .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
                  .toLowerCase()
                  .trim();
 
-    if (t.length === 0) {
+    if (t.length === 0 || t.length > 32) {
       return;
     }
 
