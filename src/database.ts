@@ -460,5 +460,9 @@ export default class Database {
   static async deleteEvent(eventId: number): Promise<null> {
     return db.none(eventSQL.deleteEvent, {eid: eventId});
   }
+
+  static async incrementDownload(key: string): Promise<null> {
+    return db.none(fileSQL.incrementDownload, {key: key});
+  }
 }
 

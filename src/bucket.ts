@@ -33,14 +33,17 @@ export default class Bucket {
         Key: key
       };
 
-      s3.getObject(params, (err, data) => {
-        if (err) {
-          res.send('Unable to access file');
-        } else {
-          res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
-          res.send(data.Body);
+      try {
+        const data = await s3.getObject(params).promise();
+
+        if (table === "files") {
+          await Database.incrementDownload(key);
         }
-      });
+        res.setHeader('content-disposition', 'attachment; filename=' + entry.display_name);
+        res.send(data.Body);
+      } catch (err) {
+        res.send('Unable to access file');
+      }
     } else {
       res.send('Unable to access file');
     }
