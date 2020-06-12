@@ -1,6 +1,5 @@
 import AWS from 'aws-sdk'
 import crypto from 'crypto'
-import resizeImage from 'resize-image'
 import Jimp from 'jimp'
 
 import Database from './database';
@@ -113,8 +112,8 @@ export default class Bucket {
       let img = await Jimp.read(body);
       const imgW = img.bitmap.width;
       const imgH = img.bitmap.height;
-      const goalW = 400;
-      const goalH = 300;
+      const goalW = 600;
+      const goalH = 400;
       const factor = Math.max(goalW / imgW, goalH / imgH);
 
       newBody = await img.scale(factor).quality(50).getBufferAsync(Jimp.MIME_JPEG);
