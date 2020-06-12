@@ -197,7 +197,7 @@ export default class Database {
       }
 
       if (options.tag.length > 0) {
-        values['tag'] = options.tag.replace(/\s/gi, '|');
+        values['tag'] = options.tag.replace(/\s/gi, '&');
 
         if (condition.length > 0) {
           condition += 'AND ';
