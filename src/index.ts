@@ -298,7 +298,6 @@ app.post('/file/upload', async (req, res) => {
         } else {
           files = [req.files.upload];
         }
-        console.log(files);
         const mapped = await Promise.all(files.map(file => Bucket.uploadResource(file.name, societyId, file.data)));
         const results = mapped
           .filter(r => r.status === 1)

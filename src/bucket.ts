@@ -131,17 +131,17 @@ export default class Bucket {
       await s3.putObject(params).promise();
       let row = await Database.getFileName(key, table);
 
-      if (row) {
-        result.status = 0;
-        result.body = 'ERROR: key already exists';
-      } else {
+      if (!row) {
         await Database.putFile(name, key, society, table);
-
-        result.status = 1;
+      }
+      result.status = 1;
+      if (table === "files") {
         result.body = {
           key: key,
           name: name
         };
+      } else {
+        result.body = key;
       }
     } catch (err) {
       result.status = 0;
