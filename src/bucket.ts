@@ -136,12 +136,15 @@ export default class Bucket {
         result.body = 'ERROR: key already exists';
       } else {
         await Database.putFile(name, key, society, table);
-
         result.status = 1;
-        result.body = {
-          key: key,
-          name: name
-        };
+        if (table === "files") {
+          result.body = {
+            key: key,
+            name: name
+          };
+        } else {
+          result.body = key;
+        }
       }
     } catch (err) {
       result.status = 0;
