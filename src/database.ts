@@ -14,6 +14,8 @@ const dbOptions = {
 const pgp = pgPromise();
 const db = pgp(dbOptions);
 
+const escapeRegex = /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi;
+
 export default class Database {
 
   private static mergeSocietyDetails(details: object): void {
@@ -94,23 +96,174 @@ export default class Database {
     return details;
   }
 
-  static async searchEvents(query: any, offset: number): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+  static async searchEvents(search_options: any): Promise<any[]> {
+    const options = {
+      general: decodeURIComponent(search_options.general),
+      society_name: decodeURIComponent(search_options.society_name),
+      tag: decodeURIComponent(search_options.tag),
+      start: decodeURIComponent(search_options.start),
+      end: decodeURIComponent(search_options.end),
+      finished: decodeURIComponent(search_options.finished),
+      offset: +decodeURIComponent(search_options.offset),
+    };
 
-    if (q.length === 0) {
+    if (escapeRegex.test(options.general) || escapeRegex.test(options.society_name) ||
+        escapeRegex.test(options.tag)) {
       return [];
     }
 
-    const values = {
-      prefix_pattern: q.replace(/\s/gi, ':*|') + ':*',
-      search_term: q.replace(/\s/gi, '|'),
-      offset: offset,
-    };
+    let condition = '';
+    let cards = [];
 
-    const cards = await db.any(eventSQL.searchEvents, values);
+    if (options.general.length > 0) {
+      const base_pattern = options.general.replace(/\s/gi, '% ') + '%';
+      const values = {
+        prefix_pattern: options.general.replace(/\s/gi, ':*|') + ':*',
+        pattern: ['% ' + base_pattern, base_pattern],
+        search_term: options.general.replace(/\s/gi, '|'),
+      };
+
+      condition += '("event_name" ILIKE ANY(${pattern}) OR ';
+      condition += '"society_name" ILIKE ANY(${pattern}) OR ';
+      condition += '"short_name" ILIKE ANY(${pattern}) OR ';
+      condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${search_term})) ';
+
+      if (options.start.length > 0) {
+        try {
+          values['start'] = new Date(options.start).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"start_datetime" >= ${start} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.end.length > 0) {
+        try {
+          values['end'] = new Date(options.end).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"end_datetime" <= ${end} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.finished.length > 0) {
+        const lower = options.finished.toLowerCase();
+
+        if (lower !== 'true') {
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          if (lower === 'false') {
+            condition += '"end_datetime" > now()';
+          } else {
+            return [];
+          }
+        }
+      } else {
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += '"end_datetime" > now()';
+      }
+
+      condition += ' ORDER BY (';
+      condition += 'ts_rank_cd(to_tsvector("event_name"), to_tsquery(${prefix_pattern}), 16) + ';
+      condition += 'ts_rank_cd(to_tsvector("society_name"), to_tsquery(${prefix_pattern})) + ';
+      condition += 'ts_rank_cd(to_tsvector("short_name"), to_tsquery(${prefix_pattern})) + ';
+      condition += 'ts_rank_cd(to_tsvector(array_to_string("tags", \' \')), to_tsquery(${search_term}), 8)';
+      condition += ') DESC';
+
+      condition = pgp.as.format(condition, values);
+    } else {
+      const values = {};
+
+      if (options.society_name.length > 0) {
+        const base_name = options.society_name.replace(/\s/gi, '% ') + '%';
+        values['name'] = ['% ' + base_name, base_name];
+
+        condition += '"society_name" ILIKE ANY(${name}) ';
+      }
+
+      if (options.tag.length > 0) {
+        values['tag'] = options.tag.replace(/\s/gi, '|');
+
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += 'to_tsvector(array_to_string("tags", \' \')) @@ to_tsquery(${tag}) ';
+      }
+
+      if (options.start.length > 0) {
+        try {
+          values['start'] = new Date(options.start).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"start_datetime" >= ${start} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.end.length > 0) {
+        try {
+          values['end'] = new Date(options.end).toISOString();
+
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          condition += '"end_datetime" <= ${end} ';
+        } catch {
+          return [];
+        }
+      }
+
+      if (options.finished.length > 0) {
+        const lower = options.finished.toLowerCase();
+
+        if (lower !== 'true') {
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
+
+          if (lower === 'false') {
+            condition += '"end_datetime" > now()';
+          } else {
+            return [];
+          }
+        }
+      } else {
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += '"end_datetime" > now()';
+      }
+
+      condition = pgp.as.format(condition, values);
+    }
+
+    if (condition.length === 0) {
+      return [];
+    }
+
+    cards = await db.any(eventSQL.searchEvents, {condition: condition, offset: options.offset});
 
     for (let i = 0; i < cards.length; i++) {
       this.mergeSocietyDetails(cards[i]);
@@ -120,12 +273,9 @@ export default class Database {
   }
 
   static async searchSocieties(query: any, userId: number): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+    const q = decodeURIComponent(query);
 
-    if (q.length === 0) {
+    if (q.length === 0 || escapeRegex.test(q)) {
       return [];
     }
 
@@ -242,16 +392,9 @@ export default class Database {
   }
 
   static async addInterest(userId: number, tag: string): Promise<null> {
-    if (tag.length > 32) {
-      return;
-    }
+    const t = decodeURIComponent(tag);
 
-    const t = tag.replace(/(%20)+/g, ' ')
-                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                 .toLowerCase()
-                 .trim();
-
-    if (t.length === 0 || t.length > 32) {
+    if (t.length === 0 || t.length > 32 || escapeRegex.test(t)) {
       return;
     }
 
@@ -259,16 +402,9 @@ export default class Database {
   }
 
   static async removeInterest(userId: number, tag: string): Promise<null> {
-    if (tag.length > 32) {
-      return;
-    }
+    const t = decodeURIComponent(tag);
 
-    const t = tag.replace(/(%20)+/g, ' ')
-                 .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                 .toLowerCase()
-                 .trim();
-
-    if (t.length === 0 || t.length > 32) {
+    if (t.length === 0 || t.length > 32 || escapeRegex.test(t)) {
       return;
     }
 
@@ -276,12 +412,9 @@ export default class Database {
   }
   
   static async countInterested(userId: number, query: any): Promise<any[]> {
-    const q = query.replace(/(%20)+/g, ' ')
-                   .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                   .toLowerCase()
-                   .trim();
+    const q = decodeURIComponent(query);
 
-    if (q.length === 0) {
+    if (q.length === 0 || escapeRegex.test(q)) {
       return [];
     }
 

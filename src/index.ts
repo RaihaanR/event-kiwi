@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import request from 'request-promise';
 import bodyParser from 'body-parser';
-import fileUpload from 'express-fileupload'
+import fileUpload, { UploadedFile } from 'express-fileupload'
 
 import Bucket from './bucket';
 import Database from './database';
@@ -225,16 +225,17 @@ app.get('/events/suggested/:eventId', async (req, res) => {
 
 app.get('/events/search', async (req, res) => {
   const search_options = {
-    general: req.query.q,
-    society_name: req.query.society_name,
-    tags: req.query.tags,
-    start: req.query.start,
-    end: req.query.end,
-    finished: req.query.finished,
+    general: req.query.q !== undefined ? req.query.q : '',
+    society_name: req.query.society_name !== undefined ? req.query.society_name : '',
+    tag: req.query.tag !== undefined ? req.query.tag : '',
+    start: req.query.start !== undefined ? req.query.start : '',
+    end: req.query.end !== undefined ? req.query.end : '',
+    finished: req.query.finished !== undefined ? req.query.finished : '',
+    offset: req.query.n,
   };
 
   try {
-    res.send(await Database.searchEvents(req.query.q, +req.query.n));
+    res.send(await Database.searchEvents(search_options));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
@@ -291,8 +292,18 @@ app.post('/file/upload', async (req, res) => {
         res.status(400);
         res.send("No file included");
       } else {
-        const file: any = req.files['upload'];
-        res.send(await Bucket.uploadResource(file.name, societyId, file.data));
+        let files: UploadedFile[] = [];
+        if (req.files.upload instanceof Array) {
+          files = req.files.upload;
+        } else {
+          files = [req.files.upload];
+        }
+        console.log(files);
+        const mapped = await Promise.all(files.map(file => Bucket.uploadResource(file.name, societyId, file.data)));
+        const results = mapped
+          .filter(r => r.status === 1)
+          .map(r => r.body);
+        res.send(results);
       }
     } else {
       res.status(403);
