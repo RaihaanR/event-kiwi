@@ -165,7 +165,7 @@ export default class Database {
 
         if (lower === 'false') {
           condition += '"end_datetime" > now()';
-        } else {
+        } else if (lower !== 'true') {
           return [];
         }
       } else {
@@ -241,7 +241,7 @@ export default class Database {
 
         if (lower === 'false') {
           condition += '"end_datetime" > now()';
-        } else {
+        } else if (lower !== 'true') {
           return [];
         }
       } else {
