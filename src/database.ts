@@ -159,7 +159,7 @@ export default class Database {
       if (options.finished.length > 0) {
         const lower = options.finished.toLowerCase();
 
-        if (condition.length > 0) {
+        if (condition.length > 0 && lower !== 'true') {
           condition += 'AND ';
         }
 
@@ -235,7 +235,7 @@ export default class Database {
       if (options.finished.length > 0) {
         const lower = options.finished.toLowerCase();
 
-        if (condition.length > 0) {
+        if (condition.length > 0 && lower !== 'true') {
           condition += 'AND ';
         }
 
