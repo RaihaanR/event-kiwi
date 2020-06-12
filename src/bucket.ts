@@ -1,5 +1,7 @@
 import AWS from 'aws-sdk'
 import crypto from 'crypto'
+import resizeImage from 'resize-image'
+import Jimp from 'jimp'
 
 import Database from './database';
 
@@ -104,6 +106,21 @@ export default class Bucket {
   }
 
   static async uploadImage(name, society, body) {
+    let newBody = body;
+    let newName = name;
+    let resized = false;
+    try {
+      let img = await Jimp.read(body);
+      const imgW = img.bitmap.width;
+      const imgH = img.bitmap.height;
+      const goalW = 400;
+      const goalH = 300;
+      const factor = Math.max(goalW / imgW, goalH / imgH);
+
+      newBody = await img.scale(factor).quality(50).getBufferAsync(Jimp.MIME_JPEG);
+      resized = true;
+    } catch { /* oversized file */ }
+
     let key = '';
     let success = false;
     while (!success) {
@@ -115,7 +132,11 @@ export default class Bucket {
       }
     }
 
-    return await this.uploadFile(name, society, body, key, "image_mirrors");
+    if (resized) {
+      newName = key + ".jpg";
+    }
+
+    return await this.uploadFile(newName, society, newBody, key, "image_mirrors");
   }
 
   static async uploadFile(name, society, body, key, table) {
