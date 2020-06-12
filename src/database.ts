@@ -163,9 +163,7 @@ export default class Database {
           condition += 'AND ';
         }
 
-        if (lower === 'true') {
-          condition += '"end_datetime" < now()';
-        } else if (lower === 'false') {
+        if (lower === 'false') {
           condition += '"end_datetime" > now()';
         } else {
           return [];
@@ -241,9 +239,7 @@ export default class Database {
           condition += 'AND ';
         }
 
-        if (lower === 'true') {
-          condition += '"end_datetime" < now()';
-        } else if (lower === 'false') {
+        if (lower === 'false') {
           condition += '"end_datetime" > now()';
         } else {
           return [];
