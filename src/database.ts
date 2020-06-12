@@ -159,14 +159,16 @@ export default class Database {
       if (options.finished.length > 0) {
         const lower = options.finished.toLowerCase();
 
-        if (condition.length > 0) {
-          condition += 'AND ';
-        }
+        if (lower !== 'true') {
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
 
-        if (lower === 'false') {
-          condition += '"end_datetime" > now()';
-        } else {
-          return [];
+          if (lower === 'false') {
+            condition += '"end_datetime" > now()';
+          } else {
+            return [];
+          }
         }
       } else {
         if (condition.length > 0) {
@@ -235,14 +237,16 @@ export default class Database {
       if (options.finished.length > 0) {
         const lower = options.finished.toLowerCase();
 
-        if (condition.length > 0) {
-          condition += 'AND ';
-        }
+        if (lower !== 'true') {
+          if (condition.length > 0) {
+            condition += 'AND ';
+          }
 
-        if (lower === 'false') {
-          condition += '"end_datetime" > now()';
-        } else {
-          return [];
+          if (lower === 'false') {
+            condition += '"end_datetime" > now()';
+          } else {
+            return [];
+          }
         }
       } else {
         if (condition.length > 0) {
