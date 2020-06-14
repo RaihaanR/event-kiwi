@@ -16,7 +16,7 @@ FROM
     AND "user_id" = ${user_id}
   )
 WHERE
-  "end_datetime" > now()
+  ${condition:raw}
 ORDER BY
   ts_rank_cd(
     to_tsvector(array_to_string("tags", ' ')),
