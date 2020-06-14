@@ -53,13 +53,71 @@ export default class Database {
     return cards;
   }
 
-  static async getRelevantEventCards(userId: number, offset: number): Promise<any[]> {
-    const values = {
+  static async getRelevantEventCards(userId: number, options: any): Promise<any[]> {
+    const opt = {
       user_id: userId,
-      offset: offset,
+      start: decodeURIComponent(options.start),
+      end: decodeURIComponent(options.end),
+      finished: decodeURIComponent(options.finished),
+      offset: +decodeURIComponent(options.offset),
     };
 
-    const cards = await db.any(profileSQL.findRelevantEventsCards, values);
+    let condition = '';
+    const values = {};
+
+    if (opt.start.length > 0) {
+      try {
+        values['start'] = new Date(opt.start).toISOString();
+
+        condition += '"start_datetime" >= ${start} ';
+      } catch {
+        return [];
+      }
+    }
+
+    if (opt.end.length > 0) {
+      try {
+        values['end'] = new Date(opt.end).toISOString();
+
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        condition += '"end_datetime" <= ${end} ';
+      } catch {
+        return [];
+      }
+    }
+
+    if (opt.finished.length > 0) {
+      const lower = opt.finished.toLowerCase();
+
+      if (lower !== 'true') {
+        if (condition.length > 0) {
+          condition += 'AND ';
+        }
+
+        if (lower === 'false') {
+          condition += '"end_datetime" > now()';
+        } else {
+          return [];
+        }
+      }
+    } else {
+      if (condition.length > 0) {
+        condition += 'AND ';
+      }
+
+      condition += '"end_datetime" > now()';
+    }
+
+    if (condition.length === 0) {
+      condition += 'TRUE';
+    }
+
+    condition = pgp.as.format(condition, values);
+
+    const cards = await db.any(profileSQL.findRelevantEventsCards, {condition: condition, user_id: userId, offset: opt.offset});
 
     for (let i = 0; i < cards.length; i++) {
       this.mergeSocietyDetails(cards[i]);

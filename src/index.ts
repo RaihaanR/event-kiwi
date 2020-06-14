@@ -120,12 +120,18 @@ app.post('/events/create', async (req, res) => {
 
 app.get('/events/cards/all', async (req, res) => {
   const userId = await Auth.uidFromBearer(req.headers.authorization);
+  const options = {
+    start: req.query.start !== undefined ? req.query.start : '',
+    end: req.query.end !== undefined ? req.query.end : '',
+    finished: req.query.finished !== undefined ? req.query.finished : '',
+    offset: req.query.n,
+  };
 
   if (userId === -1) {
     res.status(403);
     res.send('Invalid token');
   } else {
-    res.send(await Database.getRelevantEventCards(userId, +req.query.n));
+    res.send(await Database.getRelevantEventCards(userId, options));
   }
 });
 
