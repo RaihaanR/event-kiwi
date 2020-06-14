@@ -183,7 +183,9 @@ export default class Event {
     details.resources = await Database.getFilesByEvent(eventId);
     details.going_status = going;
     details.similar_events = all.filter(e =>
-      e.id !== details.id && e.tags.some(t => details.tags.includes(t))
+      e.event_id !== details.event_id &&
+      e.society.society_id !== details.society.society_id &&
+      e.tags.some(t => details.tags.includes(t))
     );
     details.posts = [];
 
