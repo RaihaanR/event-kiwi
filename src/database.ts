@@ -55,7 +55,12 @@ export default class Database {
     return cards;
   }
 
-  static async getRelevantEventCards(userId: number, options: any): Promise<any[]> {
+  static async getRelevantEventCards(userId: number, options: any): Promise<any> {
+    const def = {
+      count: 0,
+      events: []
+    };
+
     const opt = {
       user_id: userId,
       start: decodeURIComponent(options.start),
@@ -73,7 +78,7 @@ export default class Database {
 
         condition += '"start_datetime" >= ${start} ';
       } catch {
-        return [];
+        return def;
       }
     }
 
@@ -87,7 +92,7 @@ export default class Database {
 
         condition += '"end_datetime" <= ${end} ';
       } catch {
-        return [];
+        return def;
       }
     }
 
@@ -102,7 +107,7 @@ export default class Database {
         if (lower === 'false') {
           condition += '"end_datetime" > now()';
         } else {
-          return [];
+          return def;
         }
       }
     } else {
@@ -125,9 +130,15 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
+
+    const count = cards.length;
+
     const filtered = await Database.canView(cards.map(c => c.event_id), userId);
 
-    return cards.filter(c => filtered.includes(c.event_id));
+    return {
+      count: cards.length,
+      events: cards.filter(c => filtered.includes(c.event_id))
+    };
   }
 
   static async canView(eventIds: number[], userId: number): Promise<number[]> {
