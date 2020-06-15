@@ -169,7 +169,7 @@ export default class Database {
     return details;
   }
 
-  static async searchEvents(search_options: any): Promise<any[]> {
+  static async searchEvents(search_options: any, userId: number): Promise<any[]> {
     const options = {
       general: decodeURIComponent(search_options.general),
       society_name: decodeURIComponent(search_options.society_name),
@@ -342,7 +342,9 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
-    return cards;
+    const filtered = await Database.canView(cards.map(c => c.event_id), userId);
+
+    return cards.filter(c => filtered.includes(c.event_id));
   }
 
   static async searchSocieties(query: any, userId: number): Promise<any[]> {

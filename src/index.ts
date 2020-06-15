@@ -224,9 +224,10 @@ app.get('/events/search', async (req, res) => {
     finished: req.query.finished !== undefined ? req.query.finished : '',
     offset: req.query.n,
   };
+  const userId = await Auth.uidFromBearer(req.headers.authorization);
 
   try {
-    res.send(await Database.searchEvents(search_options));
+    res.send(await Database.searchEvents(search_options, userId));
   } catch (err) {
     res.send('Error occurred');
     console.log(err);
