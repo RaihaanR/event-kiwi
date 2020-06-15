@@ -214,21 +214,6 @@ app.get('/events/posts/:eventId/:start', async (req, res) => {
   res.send(result);
 });
 
-app.get('/events/suggested/:eventId', async (req, res) => {
-  try {
-    const event = await Database.getEventDetails(+req.params.eventId);
-    const all = await Database.getAllEventCardDetails();
-    const filtered = all.filter(e =>
-      e.id !== event.id && e.tags.some(t => event.tags.includes(t))
-    );
-
-    res.send(filtered);
-  } catch (err) {
-    res.send('Error occurred');
-    console.log(err);
-  }
-});
-
 app.get('/events/search', async (req, res) => {
   const search_options = {
     general: req.query.q !== undefined ? req.query.q : '',

@@ -189,6 +189,12 @@ export default class Event {
     );
     details.posts = [];
 
+    const combined = (details.similar_events.concat(details.same_society_events)).map(e => e.event_id);
+    const filtered = await Database.canView(combined, userId);
+
+    details.similar_events = details.similar_events.filter(e => filtered.includes(e.event_id));
+    details.same_society_events = details.same_society_events.filter(e => filtered.includes(e.event_id));
+
     return details
   }
 

@@ -129,7 +129,7 @@ export default class Database {
 
     return cards.filter(c => filtered.includes(c.event_id));
   }
-  
+
   static async canView(eventIds: number[], userId: number): Promise<number[]> {
     const values = {
       eids: eventIds,
