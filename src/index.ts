@@ -283,7 +283,7 @@ app.post('/file/upload', async (req, res) => {
       if (req.files) {
         if (!req.files.upload) {
           res.status(400);
-          res.send("No file included");
+          res.send([]);
         } else {
           let files: UploadedFile[] = [];
           if (req.files.upload instanceof Array) {
@@ -298,7 +298,7 @@ app.post('/file/upload', async (req, res) => {
           res.send(results);
         }
       } else {
-        res.send("No file included");
+        res.send([]);
       }
     } else {
       res.status(403);
