@@ -200,7 +200,7 @@ export default class Event {
     const result = await Database.listEventsSubscribed(userId);
 
     if (result) {
-      return result.map(e => { return {
+      const rows = result.map(e => { return {
         id: e.event_id,
         start: e.start_datetime,
         end: e.end_datetime,
@@ -214,6 +214,10 @@ export default class Event {
         },
         status: e.status
       }});
+
+      const filtered = await Database.canView(rows.map(c => c.id), userId);
+
+      return rows.filter(r => filtered.includes(r.id));
     } else {
       return [];
     }
