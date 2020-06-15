@@ -169,7 +169,12 @@ export default class Database {
     return details;
   }
 
-  static async searchEvents(search_options: any, userId: number): Promise<any[]> {
+  static async searchEvents(search_options: any, userId: number): Promise<any> {
+    const def = {
+      count: 0,
+      events: []
+    };
+
     const options = {
       general: decodeURIComponent(search_options.general),
       society_name: decodeURIComponent(search_options.society_name),
@@ -182,7 +187,7 @@ export default class Database {
 
     if (escapeRegex.test(options.general) || escapeRegex.test(options.society_name) ||
         escapeRegex.test(options.tag)) {
-      return [];
+      return def;
     }
 
     let condition = '';
@@ -211,7 +216,7 @@ export default class Database {
 
           condition += '"start_datetime" >= ${start} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -225,7 +230,7 @@ export default class Database {
 
           condition += '"end_datetime" <= ${end} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -240,7 +245,7 @@ export default class Database {
           if (lower === 'false') {
             condition += '"end_datetime" > now()';
           } else {
-            return [];
+            return def;
           }
         }
       } else {
@@ -289,7 +294,7 @@ export default class Database {
 
           condition += '"start_datetime" >= ${start} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -303,7 +308,7 @@ export default class Database {
 
           condition += '"end_datetime" <= ${end} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -318,7 +323,7 @@ export default class Database {
           if (lower === 'false') {
             condition += '"end_datetime" > now()';
           } else {
-            return [];
+            return def;
           }
         }
       } else {
@@ -333,7 +338,7 @@ export default class Database {
     }
 
     if (condition.length === 0) {
-      return [];
+      return def;
     }
 
     cards = await db.any(eventSQL.searchEvents, {condition: condition, offset: options.offset});
