@@ -342,9 +342,14 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
+    const count = cards.length;
+
     const filtered = await Database.canView(cards.map(c => c.event_id), userId);
 
-    return cards.filter(c => filtered.includes(c.event_id));
+    return {
+      count: cards.length,
+      events: cards.filter(c => filtered.includes(c.event_id))
+    };
   }
 
   static async searchSocieties(query: any, userId: number): Promise<any[]> {
