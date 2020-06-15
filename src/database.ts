@@ -23,13 +23,15 @@ export default class Database {
                           'society_name': details['society_name'],
                           'society_image_src': details['society_image_src'],
                           'colour': details['colour'],
-                          'short_name': details['short_name']};
+                          'short_name': details['short_name'],
+                          'owner': details['owner']};
 
     delete details['society_id'];
     delete details['society_name'];
     delete details['society_image_src'];
     delete details['colour'];
     delete details['short_name'];
+    delete details['owner'];
   }
 
   private static async getEventCardDetails(societyId: number, condition: string): Promise<any[]> {
@@ -123,7 +125,20 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
-    return cards;
+    const filtered = await Database.canView(cards.map(c => c.event_id), userId);
+
+    return cards.filter(c => filtered.includes(c.event_id));
+  }
+
+  static async canView(eventIds: number[], userId: number): Promise<number[]> {
+    const values = {
+      eids: eventIds,
+      uid: userId
+    };
+
+    const results = await db.manyOrNone(eventSQL.canView, values);
+
+    return results ? results.map(c => c.event_id) : [];
   }
 
   static getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
@@ -154,7 +169,12 @@ export default class Database {
     return details;
   }
 
-  static async searchEvents(search_options: any): Promise<any[]> {
+  static async searchEvents(search_options: any, userId: number): Promise<any> {
+    const def = {
+      count: 0,
+      events: []
+    };
+
     const options = {
       general: decodeURIComponent(search_options.general),
       society_name: decodeURIComponent(search_options.society_name),
@@ -167,7 +187,7 @@ export default class Database {
 
     if (escapeRegex.test(options.general) || escapeRegex.test(options.society_name) ||
         escapeRegex.test(options.tag)) {
-      return [];
+      return def;
     }
 
     let condition = '';
@@ -196,7 +216,7 @@ export default class Database {
 
           condition += '"start_datetime" >= ${start} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -210,7 +230,7 @@ export default class Database {
 
           condition += '"end_datetime" <= ${end} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -225,7 +245,7 @@ export default class Database {
           if (lower === 'false') {
             condition += '"end_datetime" > now()';
           } else {
-            return [];
+            return def;
           }
         }
       } else {
@@ -274,7 +294,7 @@ export default class Database {
 
           condition += '"start_datetime" >= ${start} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -288,7 +308,7 @@ export default class Database {
 
           condition += '"end_datetime" <= ${end} ';
         } catch {
-          return [];
+          return def;
         }
       }
 
@@ -303,7 +323,7 @@ export default class Database {
           if (lower === 'false') {
             condition += '"end_datetime" > now()';
           } else {
-            return [];
+            return def;
           }
         }
       } else {
@@ -318,7 +338,7 @@ export default class Database {
     }
 
     if (condition.length === 0) {
-      return [];
+      return def;
     }
 
     cards = await db.any(eventSQL.searchEvents, {condition: condition, offset: options.offset});
@@ -327,7 +347,14 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
-    return cards;
+    const count = cards.length;
+
+    const filtered = await Database.canView(cards.map(c => c.event_id), userId);
+
+    return {
+      count: cards.length,
+      events: cards.filter(c => filtered.includes(c.event_id))
+    };
   }
 
   static async searchSocieties(query: any, userId: number): Promise<any[]> {

@@ -189,6 +189,12 @@ export default class Event {
     );
     details.posts = [];
 
+    const combined = (details.similar_events.concat(details.same_society_events)).map(e => e.event_id);
+    const filtered = await Database.canView(combined, userId);
+
+    details.similar_events = details.similar_events.filter(e => filtered.includes(e.event_id));
+    details.same_society_events = details.same_society_events.filter(e => filtered.includes(e.event_id));
+
     return details
   }
 
@@ -200,7 +206,7 @@ export default class Event {
     const result = await Database.listEventsSubscribed(userId);
 
     if (result) {
-      return result.map(e => { return {
+      const rows = result.map(e => { return {
         id: e.event_id,
         start: e.start_datetime,
         end: e.end_datetime,
@@ -214,6 +220,10 @@ export default class Event {
         },
         status: e.status
       }});
+
+      const filtered = await Database.canView(rows.map(c => c.id), userId);
+
+      return rows.filter(r => filtered.includes(r.id));
     } else {
       return [];
     }
