@@ -679,6 +679,10 @@ export default class Database {
       keys: keys
     };
 
+    if (keys.length === 0) {
+      return null;
+    }
+
     return db.none(eventSQL.fileAdd, values);
   }
 
