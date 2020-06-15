@@ -280,21 +280,25 @@ app.post('/file/upload', async (req, res) => {
   } else {
     const societyId = await Profile.getSocietyFromOwner(userId);
     if (societyId > 0) {
-      if (!req.files.upload) {
-        res.status(400);
-        res.send("No file included");
-      } else {
-        let files: UploadedFile[] = [];
-        if (req.files.upload instanceof Array) {
-          files = req.files.upload;
+      if (req.files) {
+        if (!req.files.upload) {
+          res.status(400);
+          res.send("No file included");
         } else {
-          files = [req.files.upload];
+          let files: UploadedFile[] = [];
+          if (req.files.upload instanceof Array) {
+            files = req.files.upload;
+          } else {
+            files = [req.files.upload];
+          }
+          const mapped = await Promise.all(files.map(file => Bucket.uploadResource(file.name, societyId, file.data)));
+          const results = mapped
+            .filter(r => r.status === 1)
+            .map(r => r.body);
+          res.send(results);
         }
-        const mapped = await Promise.all(files.map(file => Bucket.uploadResource(file.name, societyId, file.data)));
-        const results = mapped
-          .filter(r => r.status === 1)
-          .map(r => r.body);
-        res.send(results);
+      } else {
+        res.send("No file included");
       }
     } else {
       res.status(403);
