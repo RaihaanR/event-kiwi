@@ -23,13 +23,15 @@ export default class Database {
                           'society_name': details['society_name'],
                           'society_image_src': details['society_image_src'],
                           'colour': details['colour'],
-                          'short_name': details['short_name']};
+                          'short_name': details['short_name'],
+                          'owner': details['owner']};
 
     delete details['society_id'];
     delete details['society_name'];
     delete details['society_image_src'];
     delete details['colour'];
     delete details['short_name'];
+    delete details['owner'];
   }
 
   private static async getEventCardDetails(societyId: number, condition: string): Promise<any[]> {
@@ -123,7 +125,20 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
-    return cards;
+    const filtered = await Database.canView(cards.map(c => c.event_id), userId);
+
+    return cards.filter(c => filtered.includes(c.event_id));
+  }
+  
+  static async canView(eventIds: number[], userId: number): Promise<number[]> {
+    const values = {
+      eids: eventIds,
+      uid: userId
+    };
+
+    const results = await db.manyOrNone(eventSQL.canView, values);
+
+    return results ? results.map(c => c.event_id) : [];
   }
 
   static getEventCardDetailsBySociety(societyId: number): Promise<any[]> {
