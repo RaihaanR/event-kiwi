@@ -130,9 +130,6 @@ export default class Database {
       this.mergeSocietyDetails(cards[i]);
     }
 
-
-    const count = cards.length;
-
     const filtered = await Database.canView(cards.map(c => c.event_id), userId);
 
     return {
