@@ -6,10 +6,10 @@ FROM
 WHERE
   "events"."event_id" IN (${eids:csv})
   AND (
-    "events"."privacy" = 3
+    "events"."privacy" = 0
     OR "societies"."owner" = ${uid}
     OR (
-      "events"."privacy" = 1
+      "events"."privacy" = 2
       AND EXISTS (
         SELECT
           *

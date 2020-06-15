@@ -31,12 +31,15 @@ export default class Event {
       const permission = await Database.canPost(userId, eventId);
       if (permission) {
         if (add) {
+          console.log("HHHH");
           await Database.addFileToEvent(eventId, files);
         } else {
           await Database.removeFileFromEvent(eventId, files);
         }
         result.status = 1;
+          console.log("HHHH");
         result.body = await Event.getDetails(eventId, userId);
+          console.log("HHHH");
       } else {
         result.status = 0;
         result.body = "ERROR: you do not have permission to modify files on this event";
