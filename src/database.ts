@@ -144,6 +144,10 @@ export default class Database {
       uid: userId
     };
 
+    if (eventIds.length === 0) {
+      return [];
+    }
+
     const results = await db.manyOrNone(eventSQL.canView, values);
 
     return results ? results.map(c => c.event_id) : [];
@@ -691,6 +695,10 @@ export default class Database {
       eid: eventId,
       keys: keys
     };
+
+    if (keys.length === 0) {
+      return null;
+    }
 
     return db.none(eventSQL.fileRemove, values);
   }
