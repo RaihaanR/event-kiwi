@@ -144,7 +144,7 @@ export default class Database {
       uid: userId
     };
 
-    if (eventsIds.length === 0) {
+    if (eventIds.length === 0) {
       return [];
     }
 
